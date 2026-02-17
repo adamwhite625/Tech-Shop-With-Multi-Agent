@@ -5,6 +5,7 @@ import logging
 
 from app.core.config import settings
 from app.services.a2a_client import a2a_client
+from fastapi import UploadFile, File
 
 # Configure basic logging
 logging.basicConfig(level=logging.INFO)
@@ -64,3 +65,27 @@ async def orchestrate_request(request_data: OrchestrateRequest):
             status_code=503, 
             content={"error": str(e), "message": "The requested AI agent is currently offline."}
         )
+    
+@app.post("/api/orchestrate/image")
+async def orchestrate_image_request(file: UploadFile = File(...)):
+    """
+    Nhận file ảnh từ Frontend và route sang Search Agent (CLIP Image Search).
+    """
+    logger.info(f"Received image search request: {file.filename}")
+    
+    try:
+        # Đọc file thành bytes
+        image_bytes = await file.read()
+        
+        # Forward sang Search Agent
+        response = await a2a_client.forward_image_to_search(
+            image_bytes=image_bytes, 
+            filename=file.filename,
+            content_type=file.content_type
+        )
+        
+        return JSONResponse(content={"agent": "search_image", "data": response})
+
+    except Exception as e:
+        logger.error(f"Image Routing failed: {str(e)}")
+        return JSONResponse(status_code=503, content={"error": str(e)})

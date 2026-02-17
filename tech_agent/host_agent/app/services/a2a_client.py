@@ -50,6 +50,21 @@ class A2AClient:
         endpoint = f"{settings.advisor_agent_url}/api/chat"
         payload = {"session_id": session_id, "message": message}
         return await self._post_request(endpoint, payload)
+    
+    async def forward_image_to_search(self, image_bytes: bytes, filename: str, content_type: str) -> Dict[str, Any]:
+        """
+        Forward uploaded image to Search Agent for CLIP processing.
+        """
+        endpoint = f"{settings.search_agent_url}/api/search/image"
+        files = {"file": (filename, image_bytes, content_type)}
+        
+        async with httpx.AsyncClient(timeout=self.timeout) as client:
+            try:
+                response = await client.post(endpoint, files=files)
+                response.raise_for_status()
+                return response.json()
+            except httpx.HTTPStatusError as exc:
+                raise HTTPException(status_code=exc.response.status_code, detail=f"Search Agent Error: {exc.response.text}")
 
 # Singleton instance
 a2a_client = A2AClient()
