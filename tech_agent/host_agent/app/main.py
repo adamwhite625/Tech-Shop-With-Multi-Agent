@@ -36,7 +36,14 @@ async def health_check():
 async def orchestrate_request(request_data: OrchestrateRequest):
     """
     The main brain of the system. 
-    Receives user queries and routes them to the appropriate specialized agent.
+    Receives user queries and routes to ADVISOR Agent FIRST.
+    
+    Flow: Host ➡️ Advisor ➡️ Search ➡️ Qdrant ➡️ Advisor (OpenAI) ➡️ Host ➡️ User
+    
+    Advisor Agent will:
+    1. Call Search Agent to fetch product context
+    2. Use OpenAI LLM to generate personalized recommendation
+    3. Return comprehensive response with both search results and advice
     """
     # Extract data using Pydantic model
     user_message = request_data.message
@@ -45,18 +52,10 @@ async def orchestrate_request(request_data: OrchestrateRequest):
     logger.info(f"Received message from session {session_id}: {user_message}")
     
     try:
-        # 1. Check if user wants to SEARCH for a product (e.g., laptop, mouse, keyboard)
-        search_keywords = ["tìm", "search", "mua", "laptop", "pc", "chuột", "bàn phím", "màn hình"]
-        if any(keyword in user_message.lower() for keyword in search_keywords):
-            logger.info("Intent detected: SEARCH. Routing to Search Agent...")
-            response = await a2a_client.forward_to_search(query=user_message)
-            return JSONResponse(content={"agent": "search", "data": response})
-            
-        # 2. Otherwise, treat it as general tech consultation (ADVISOR)
-        else:
-            logger.info("Intent detected: ADVICE. Routing to Advisor Agent...")
-            response = await a2a_client.forward_to_advisor(session_id=session_id, message=user_message)
-            return JSONResponse(content={"agent": "advisor", "data": response})
+        # Route ALWAYS to Advisor Agent
+        logger.info("Routing to Advisor Agent (will internally call Search if needed)...")
+        response = await a2a_client.forward_to_advisor(session_id=session_id, message=user_message)
+        return JSONResponse(content={"agent": "advisor", "data": response})
 
     except Exception as e:
         logger.error(f"Routing failed: {str(e)}")

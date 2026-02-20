@@ -1,20 +1,46 @@
 version: "3.8"
 
 services:
+  # 1. Dịch vụ Database MySQL (Dành cho Website Backend)
   mysql_db:
     image: mysql:8.0
     container_name: tech_mysql
+    restart: always
     environment:
       MYSQL_DATABASE: tech_store_db
       MYSQL_ROOT_PASSWORD: root
     ports:
+      # Nếu bạn vẫn đang bật project cũ, hãy đổi cổng host thành 3307:3306 để tránh xung đột
       - "3306:3306"
     volumes:
-      # Nạp schema tự động
+      # Nạp schema tự động (Giữ nguyên của bạn)
       - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
-      # Lưu trữ data để không bị mất khi tắt Docker
-      - mysql_data:/var/lib/mysql
+      # Dùng named volume có tiền tố 'tech_' để không bị nhầm với project khác
+      - tech_mysql_data:/var/lib/mysql
     command: --default-authentication-plugin=mysql_native_password
+    networks:
+      - tech_network
 
+  # 2. Dịch vụ Vector Database Qdrant (Dành cho AI Search Agent)
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: tech_qdrant
+    restart: always
+    ports:
+      # Đổi thành 6335:6333 nếu bị trùng với project law_chatbot cũ
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - tech_qdrant_data:/qdrant/storage
+    networks:
+      - tech_network
+
+# Định nghĩa mạng nội bộ cho các container giao tiếp với nhau
+networks:
+  tech_network:
+    driver: bridge
+
+# Định nghĩa nơi lưu trữ dữ liệu vĩnh viễn (Named Volumes)
 volumes:
-  mysql_data:
+  tech_mysql_data:
+  tech_qdrant_data:
