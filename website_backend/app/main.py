@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 # Import các router
-from app.routers import auth, category, product # <-- Thêm category, product
+from app.routers import auth, category, product, cart, checkout
 
 app = FastAPI(title="PinkCapy Tech E-commerce API")
 
@@ -23,3 +23,5 @@ app.include_router(auth.router, prefix="/api/auth", tags=["Authentication"])
 
 app.include_router(category.router, prefix="/api/categories", tags=["Categories"])
 app.include_router(product.router, prefix="/api/products", tags=["Products"])
+app.include_router(cart.router, prefix="/api/cart", tags=["Cart"])
+app.include_router(checkout.router, prefix="/api/checkout", tags=["Checkout"])
