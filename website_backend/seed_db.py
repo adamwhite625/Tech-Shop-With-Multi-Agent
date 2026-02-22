@@ -1,5 +1,6 @@
 import pandas as pd
 from sqlalchemy.orm import Session
+from sqlalchemy import text
 from app.database import SessionLocal
 from app.models import Product, Category, product_categories, ProductMeta
 
@@ -15,9 +16,20 @@ def seed_data():
     try:
         print("Đang đọc dữ liệu từ file CSV...")
         df_categories = pd.read_csv("data/categories.csv")
-        df_products = pd.read_csv("data/products.csv")
+        df_products = pd.read_csv("data/products_valid.csv")
         df_product_categories = pd.read_csv("data/product_categories.csv")
         df_product_metas = pd.read_csv("data/product_metas.csv")
+
+        # 0. Clear dữ liệu cũ trước khi seed
+        print("0. Đang xóa dữ liệu cũ...")
+        db.execute(text("SET FOREIGN_KEY_CHECKS=0"))
+        db.execute(text("TRUNCATE TABLE product_metas"))
+        db.execute(text("TRUNCATE TABLE product_categories"))
+        db.execute(text("TRUNCATE TABLE products"))
+        db.execute(text("TRUNCATE TABLE categories"))
+        db.execute(text("SET FOREIGN_KEY_CHECKS=1"))
+        db.commit()
+        print("   Xóa dữ liệu cũ xong!")
 
         # 1. Nạp dữ liệu Bảng Categories
         print("1. Đang nạp Categories...")

@@ -34,11 +34,11 @@ def ingest_products_to_qdrant():
     )
     
     # 2. Read Data from CSV
-    logger.info("Reading products.csv...")
+    logger.info("Reading products_valid.csv...")
     try:
-        df_products = pd.read_csv("../data/products.csv")
+        df_products = pd.read_csv("../data/products_valid.csv")
     except FileNotFoundError:
-        logger.error("File products.csv not found in data folder!")
+        logger.error("File products_valid.csv not found in data folder!")
         return
 
     # Filter out inactive products if status column exists (Assuming status=1 is active)

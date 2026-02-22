@@ -65,6 +65,12 @@ class A2AClient:
                 return response.json()
             except httpx.HTTPStatusError as exc:
                 raise HTTPException(status_code=exc.response.status_code, detail=f"Search Agent Error: {exc.response.text}")
+            
+    async def forward_to_order(self, session_id: str, message: str) -> Dict[str, Any]:
+        """Forward request to Order Agent"""
+        endpoint = f"{settings.order_agent_url}/api/chat"
+        payload = {"session_id": session_id, "message": message}
+        return await self._post_request(endpoint, payload)
 
 # Singleton instance
 a2a_client = A2AClient()

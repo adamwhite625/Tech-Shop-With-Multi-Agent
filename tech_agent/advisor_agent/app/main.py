@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import httpx
 import logging
@@ -16,6 +17,15 @@ logger = logging.getLogger(__name__)
 
 app = FastAPI(title="TechStore Advisor Agent", version="1.0.0")
 
+# Configure CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000", "http://localhost:3001", "http://127.0.0.1:3000"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 # Constants & Config
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 if not OPENAI_API_KEY:
@@ -26,7 +36,7 @@ SEARCH_AGENT_URL = "http://localhost:8001/api/search"
 # Initialize LangChain LLM
 llm = ChatOpenAI(
     openai_api_key=OPENAI_API_KEY,
-    model_name="gpt-4o-mini", # Có thể đổi thành gpt-4o-mini
+    model_name="gpt-4o-mini",
     temperature=0.5
 )
 
