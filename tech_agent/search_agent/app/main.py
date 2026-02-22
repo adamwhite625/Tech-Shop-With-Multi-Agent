@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException, UploadFile, File
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Optional, Dict, Any
 import logging
@@ -12,6 +13,15 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 app = FastAPI(title="TechStore Search Agent", version="1.0.0")
+
+# Configure CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000", "http://localhost:3001", "http://127.0.0.1:3000"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Constants
 QDRANT_URL = "http://localhost:6333"
@@ -56,7 +66,7 @@ async def perform_text_search(request: SearchRequest):
         score_threshold=0.3
     )
     
-    results = [{"product_id": hit.payload.get("product_id"), "title": hit.payload.get("title"), "thumb": hit.payload.get("thumb"), "match_score": round(hit.score, 4)} for hit in search_result]
+    results = [{"product_id": hit.payload.get("product_id"), "title": hit.payload.get("title"), "price": hit.payload.get("price"), "slug": hit.payload.get("slug"), "thumb": hit.payload.get("thumb"), "match_score": round(hit.score, 4)} for hit in search_result]
     return {"query": request.query, "total_found": len(results), "results": results}
 
 @app.post("/api/search/image")
