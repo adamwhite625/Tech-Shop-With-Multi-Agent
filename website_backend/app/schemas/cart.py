@@ -10,12 +10,22 @@ class CartItemAdd(BaseModel):
 class CartItemUpdate(BaseModel):
     quantity: int
 
+# Thông tin sản phẩm ngắn gọn để hiển thị trong giỏ hàng
+class ProductInCart(BaseModel):
+    title: str
+    thumb: str
+    slug: str
+    
+    class Config:
+        from_attributes = True
+
 # Dữ liệu trả về cho Frontend hiển thị
 class CartItemResponse(BaseModel):
     cart_item_id: int
     product_id: int
     quantity: int
     price: float
+    product: Optional[ProductInCart] = None
     
     class Config:
         from_attributes = True
