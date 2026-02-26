@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models import Cart, CartItem, Product, User
-from app.schemas.cart import CartResponse, CartItemAdd, CartItemUpdate
+from app.schemas.cart import CartResponse, CartItemAdd, CartItemUpdate, CartItemResponse, ProductInCart
 from app.core.security import get_current_user
 
 router = APIRouter()
@@ -16,15 +16,45 @@ def get_or_create_active_cart(db: Session, user_id: int) -> Cart:
         db.add(cart)
         db.commit()
         db.refresh(cart)
+    
+    # Force load items and products
+    db.refresh(cart, ["items"])
+    for item in cart.items:
+        db.refresh(item, ["product"])
+    
     return cart
 
-@router.get("/", response_model=CartResponse)
+def serialize_cart(cart: Cart) -> CartResponse:
+    """Convert SQLAlchemy Cart model to Pydantic CartResponse"""
+    items = []
+    for item in cart.items:
+        cart_item_resp = CartItemResponse(
+            cart_item_id=item.cart_item_id,
+            product_id=item.product_id,
+            quantity=item.quantity,
+            price=float(item.price),
+            product=ProductInCart(
+                title=item.product.title,
+                thumb=item.product.thumb,
+                slug=item.product.slug
+            ) if item.product else None
+        )
+        items.append(cart_item_resp)
+    
+    return CartResponse(
+        cart_id=cart.cart_id,
+        user_id=cart.user_id,
+        status=cart.status,
+        items=items
+    )
+
+@router.get("/")
 def get_my_cart(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Lấy thông tin giỏ hàng hiện tại của User đang đăng nhập"""
     cart = get_or_create_active_cart(db, current_user.user_id)
-    return cart
+    return serialize_cart(cart)
 
-@router.post("/items", response_model=CartResponse)
+@router.post("/items")
 def add_to_cart(
     item_data: CartItemAdd, 
     current_user: User = Depends(get_current_user), 
@@ -59,8 +89,9 @@ def add_to_cart(
         db.add(new_item)
 
     db.commit()
-    db.refresh(cart)
-    return cart
+    # Fetch lại cart với eager load products
+    cart = get_or_create_active_cart(db, current_user.user_id)
+    return serialize_cart(cart)
 
 @router.delete("/items/{cart_item_id}")
 def remove_from_cart(
@@ -77,4 +108,6 @@ def remove_from_cart(
         
     db.delete(item)
     db.commit()
-    return {"message": "Đã xóa sản phẩm khỏi giỏ hàng"}
+    # Return updated cart with products
+    cart = get_or_create_active_cart(db, current_user.user_id)
+    return serialize_cart(cart)
