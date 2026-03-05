@@ -4,7 +4,16 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models import User, UserProfile
 from app.schemas.user import UserRegister, UserLogin, TokenResponse, UserInfo
-from app.core.security import get_password_hash, verify_password, create_access_token
+from app.core.security import get_password_hash, verify_password, create_access_token, get_current_user
+from pydantic import BaseModel
+
+class UpdateUserInfo(BaseModel):
+    first_name: str
+    last_name: str
+
+class ChangePassword(BaseModel):
+    current_password: str
+    new_password: str
 
 router = APIRouter()
 
@@ -124,3 +133,85 @@ def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db:
             is_admin=user.is_admin
         )
     )
+
+
+
+
+@router.get("/me", response_model=UserInfo)
+def get_current_user_info(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """
+    Lấy thông tin người dùng hiện tại
+    Required: Bearer token trong Authorization header
+    """
+    # Lấy profile của user
+    profile = db.query(UserProfile).filter(UserProfile.user_id == current_user.user_id).first()
+    first_name = profile.first_name if profile else ""
+    last_name = profile.last_name if profile else ""
+    
+    return UserInfo(
+        user_id=current_user.user_id,
+        email=current_user.email,
+        first_name=first_name,
+        last_name=last_name,
+        is_admin=current_user.is_admin
+    )
+
+
+@router.put("/me", response_model=UserInfo)
+def update_user_info(
+    update_data: UpdateUserInfo,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Cập nhật thông tin cá nhân (first_name, last_name)
+    Required: Bearer token trong Authorization header
+    """
+    # Cập nhật hoặc tạo UserProfile nếu chưa tồn tại
+    profile = db.query(UserProfile).filter(UserProfile.user_id == current_user.user_id).first()
+    
+    if profile:
+        profile.first_name = update_data.first_name
+        profile.last_name = update_data.last_name
+    else:
+        profile = UserProfile(
+            user_id=current_user.user_id,
+            first_name=update_data.first_name,
+            last_name=update_data.last_name
+        )
+        db.add(profile)
+    
+    db.commit()
+    db.refresh(profile)
+    
+    return UserInfo(
+        user_id=current_user.user_id,
+        email=current_user.email,
+        first_name=profile.first_name,
+        last_name=profile.last_name,
+        is_admin=current_user.is_admin
+    )
+
+
+@router.put("/password")
+def change_password(
+    change_pass_data: ChangePassword,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Đổi mật khẩu người dùng
+    Required: Bearer token trong Authorization header
+    """
+    # Kiểm tra mật khẩu hiện tại
+    if not verify_password(change_pass_data.current_password, current_user.password):
+        raise HTTPException(
+            status_code=400,
+            detail="Mật khẩu hiện tại không đúng."
+        )
+    
+    # Cập nhật mật khẩu mới
+    current_user.password = get_password_hash(change_pass_data.new_password)
+    db.commit()
+    
+    return {"message": "Đổi mật khẩu thành công!"}
