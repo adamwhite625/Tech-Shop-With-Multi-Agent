@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Header from "@/components/Header";
 import Chatbot from "@/components/Chatbot";
+import Footer from "@/components/Footer";
 
 export const metadata: Metadata = {
   title: "PinkCapy Tech Store",
@@ -22,7 +23,7 @@ export default function RootLayout({
         {/* Nội dung thay đổi của từng trang sẽ nằm ở đây */}
         <main className="flex-grow bg-background">{children}</main>
 
-        {/* (Sau này chúng ta sẽ nhúng Component Footer và Khung AI Chatbot vào đây) */}
+        <Footer />
         <Chatbot />
       </body>
     </html>
