@@ -14,6 +14,13 @@ import { webClient } from "@/lib/axios";
 import { useStore } from "@/store/useStore";
 
 // Định nghĩa kiểu dữ liệu Sản phẩm
+interface ProductMeta {
+  meta_id: number;
+  product_id: number;
+  key: string;
+  content?: string;
+}
+
 interface ProductDetail {
   product_id: number;
   title: string;
@@ -21,8 +28,12 @@ interface ProductDetail {
   discount: number;
   thumb: string;
   slug: string;
-  description?: string;
+  desc?: string;
+  summary?: string;
+  sku?: string;
+  type?: string;
   quantity: number;
+  metas?: ProductMeta[];
 }
 
 const buildImageUrl = (thumb: string) => {
@@ -211,6 +222,44 @@ export default function ProductDetailPage() {
             )}
           </div>
         </div>
+
+        {/* Phần Thông tin chi tiết (Metas) */}
+        {product.metas && product.metas.length > 0 && (
+          <div className="p-8 border-t border-border">
+            <h2 className="text-2xl font-bold text-text-main mb-6">
+              Thông tin chi tiết sản phẩm
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {product.metas.map((meta) => (
+                <div
+                  key={meta.meta_id}
+                  className="p-4 bg-gray-50 rounded-lg border border-border"
+                >
+                  <h3 className="font-semibold text-text-main mb-2 capitalize">
+                    {meta.key.replace(/_/g, " ")}
+                  </h3>
+                  <div
+                    className="text-text-muted text-sm leading-relaxed"
+                    dangerouslySetInnerHTML={{
+                      __html: meta.content || "",
+                    }}
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Phần Mô tả (Description) */}
+        {product.desc && (
+          <div className="p-8 border-t border-border">
+            <h2 className="text-2xl font-bold text-text-main mb-4">Mô tả</h2>
+            <div
+              className="text-text-muted leading-relaxed"
+              dangerouslySetInnerHTML={{ __html: product.desc }}
+            />
+          </div>
+        )}
       </div>
     </div>
   );
