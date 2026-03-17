@@ -3,8 +3,37 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { UserPlus, ArrowLeft } from "lucide-react";
+import { UserPlus, ArrowLeft, CheckCircle, AlertCircle } from "lucide-react";
 import { webClient } from "@/lib/axios";
+
+// Password strength checker
+const checkPasswordStrength = (password: string) => {
+  let strength = 0;
+  const checks = {
+    length: password.length >= 8,
+    uppercase: /[A-Z]/.test(password),
+    lowercase: /[a-z]/.test(password),
+    number: /[0-9]/.test(password),
+    special: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password),
+  };
+
+  // Calculate strength score
+  Object.values(checks).forEach((check) => {
+    if (check) strength++;
+  });
+
+  let level = "Yếu";
+  let color = "text-red-500";
+  if (strength >= 4) {
+    level = "Mạnh";
+    color = "text-green-500";
+  } else if (strength >= 3) {
+    level = "Trung bình";
+    color = "text-yellow-500";
+  }
+
+  return { checks, strength, level, color };
+};
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -19,14 +48,37 @@ export default function RegisterPage() {
 
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const passwordStrength = checkPasswordStrength(formData.password);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  const isPasswordValid = () => {
+    const { length, uppercase, number } = passwordStrength.checks;
+    return length && uppercase && number && formData.password.length >= 8;
+  };
+
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+
+    // Validate required fields
+    if (!formData.first_name || !formData.last_name) {
+      setError("Vui lòng nhập họ và tên!");
+      return;
+    }
+
+    if (!formData.email) {
+      setError("Vui lòng nhập email!");
+      return;
+    }
+
+    // Validate password strength
+    if (!isPasswordValid()) {
+      setError("Mật khẩu phải có ít nhất 8 ký tự, chứa chữ hoa và số!");
+      return;
+    }
 
     if (formData.password !== formData.confirm_password) {
       setError("Mật khẩu xác nhận không khớp!");
@@ -35,7 +87,6 @@ export default function RegisterPage() {
 
     setLoading(true);
     try {
-      // Gọi API đăng ký tài khoản (Đảm bảo Backend của bạn có API POST /auth/register)
       await webClient.post("/auth/register", {
         first_name: formData.first_name,
         last_name: formData.last_name,
@@ -55,6 +106,14 @@ export default function RegisterPage() {
       setLoading(false);
     }
   };
+
+  // Check if form is valid
+  const isFormValid =
+    formData.first_name &&
+    formData.last_name &&
+    formData.email &&
+    isPasswordValid() &&
+    formData.password === formData.confirm_password;
 
   return (
     <div className="min-h-[75vh] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-gray-50">
@@ -139,12 +198,87 @@ export default function RegisterPage() {
               type="password"
               name="password"
               required
-              minLength={6}
+              minLength={8}
               value={formData.password}
               onChange={handleChange}
               className="w-full px-4 py-2 border border-border rounded-md focus:ring-2 focus:ring-primary/50 outline-none"
               placeholder="••••••••"
             />
+
+            {/* Password strength indicator */}
+            {formData.password && (
+              <div className="mt-3 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-medium text-text-muted">
+                    Độ mạnh mật khẩu
+                  </span>
+                  <span
+                    className={`text-xs font-bold ${passwordStrength.color}`}
+                  >
+                    {passwordStrength.level}
+                  </span>
+                </div>
+
+                {/* Strength bar */}
+                <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+                  <div
+                    className={`h-full transition-all ${
+                      passwordStrength.strength <= 2
+                        ? "bg-red-500 w-1/3"
+                        : passwordStrength.strength <= 3
+                          ? "bg-yellow-500 w-2/3"
+                          : "bg-green-500 w-full"
+                    }`}
+                  />
+                </div>
+
+                {/* Requirements checklist */}
+                <div className="space-y-1 text-xs">
+                  <div
+                    className={`flex items-center gap-2 ${
+                      passwordStrength.checks.length
+                        ? "text-green-600"
+                        : "text-gray-400"
+                    }`}
+                  >
+                    {passwordStrength.checks.length ? (
+                      <CheckCircle size={14} />
+                    ) : (
+                      <AlertCircle size={14} />
+                    )}
+                    <span>Ít nhất 8 ký tự</span>
+                  </div>
+                  <div
+                    className={`flex items-center gap-2 ${
+                      passwordStrength.checks.uppercase
+                        ? "text-green-600"
+                        : "text-gray-400"
+                    }`}
+                  >
+                    {passwordStrength.checks.uppercase ? (
+                      <CheckCircle size={14} />
+                    ) : (
+                      <AlertCircle size={14} />
+                    )}
+                    <span>Chứa chữ hoa (A-Z)</span>
+                  </div>
+                  <div
+                    className={`flex items-center gap-2 ${
+                      passwordStrength.checks.number
+                        ? "text-green-600"
+                        : "text-gray-400"
+                    }`}
+                  >
+                    {passwordStrength.checks.number ? (
+                      <CheckCircle size={14} />
+                    ) : (
+                      <AlertCircle size={14} />
+                    )}
+                    <span>Chứa số (0-9)</span>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           <div>
@@ -155,18 +289,39 @@ export default function RegisterPage() {
               type="password"
               name="confirm_password"
               required
-              minLength={6}
+              minLength={8}
               value={formData.confirm_password}
               onChange={handleChange}
-              className="w-full px-4 py-2 border border-border rounded-md focus:ring-2 focus:ring-primary/50 outline-none"
+              className={`w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-primary/50 outline-none ${
+                formData.confirm_password &&
+                formData.password === formData.confirm_password
+                  ? "border-green-500 bg-green-50"
+                  : formData.confirm_password &&
+                      formData.password !== formData.confirm_password
+                    ? "border-red-500 bg-red-50"
+                    : "border-border"
+              }`}
               placeholder="••••••••"
             />
+            {formData.confirm_password && (
+              <div
+                className={`mt-1 text-xs font-medium ${
+                  formData.password === formData.confirm_password
+                    ? "text-green-600"
+                    : "text-red-600"
+                }`}
+              >
+                {formData.password === formData.confirm_password
+                  ? "✓ Mật khẩu khớp"
+                  : "✗ Mật khẩu không khớp"}
+              </div>
+            )}
           </div>
 
           <button
             type="submit"
-            disabled={loading}
-            className="w-full bg-primary hover:bg-primary-hover text-white font-bold py-3 px-4 rounded-md transition-colors flex justify-center items-center mt-2"
+            disabled={loading || !isFormValid}
+            className="w-full bg-primary hover:bg-primary-hover disabled:bg-gray-400 text-white font-bold py-3 px-4 rounded-md transition-colors flex justify-center items-center mt-2"
           >
             {loading ? "ĐANG XỬ LÝ..." : "ĐĂNG KÝ NGAY"}
           </button>

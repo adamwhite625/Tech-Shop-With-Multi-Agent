@@ -81,17 +81,37 @@ def seed_data():
         
         # 4. Nạp dữ liệu Bảng Product Metas
         print("4. Đang nạp Product Metas...")
+        meta_count = 0
         for _, row in df_product_metas.iterrows():
             try:
-                new_meta = ProductMeta(
-                    product_id=row['product_id'],
-                    key=clean_nan(row.get('key')),
-                    content=clean_nan(row.get('content'))
-                )
-                db.add(new_meta)
-            except Exception:
-                pass
+                # Kiểm tra product_id có tồn tại không
+                product = db.query(Product).filter(Product.product_id == row['product_id']).first()
+                if not product:
+                    continue  # Skip nếu product không tồn tại
+                
+                # Không để key bị None vì nó là identifier
+                key = clean_nan(row.get('key'))
+                if not key:
+                    continue
+                
+                # Kiểm tra meta đã tồn tại chưa
+                existing_meta = db.query(ProductMeta).filter(
+                    ProductMeta.product_id == row['product_id'],
+                    ProductMeta.key == key
+                ).first()
+                
+                if not existing_meta:
+                    new_meta = ProductMeta(
+                        product_id=row['product_id'],
+                        key=key,
+                        content=clean_nan(row.get('content'))
+                    )
+                    db.add(new_meta)
+                    meta_count += 1
+            except Exception as e:
+                print(f"   ⚠️ Lỗi import meta từ product_id {row.get('product_id')}: {e}")
         db.commit()
+        print(f"   ✅ Nạp {meta_count} Product Metas thành công!")
 
         print("✅ Nạp dữ liệu vào MySQL THÀNH CÔNG!")
         

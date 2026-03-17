@@ -27,9 +27,11 @@ export default function LoginPage() {
         password: password,
       });
 
-      // 2. Lưu Token vào Session Storage
+      // 2. Lưu Token vào Local Storage với expiry time (7 days)
       const token = loginRes.data.access_token;
-      sessionStorage.setItem("token", token);
+      const expiryTime = Date.now() + 7 * 24 * 60 * 60 * 1000; // 7 days in milliseconds
+      localStorage.setItem("token", token);
+      localStorage.setItem("tokenExpiry", expiryTime.toString());
 
       // 3. Lưu User vào Zustand Store (từ response của login)
       setUser({

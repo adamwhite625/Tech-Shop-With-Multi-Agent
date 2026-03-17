@@ -93,6 +93,37 @@ def add_to_cart(
     cart = get_or_create_active_cart(db, current_user.user_id)
     return serialize_cart(cart)
 
+@router.put("/items/{cart_item_id}")
+def update_cart_item_quantity(
+    cart_item_id: int,
+    item_data: CartItemUpdate,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Cập nhật số lượng sản phẩm trong giỏ hàng"""
+    cart = get_or_create_active_cart(db, current_user.user_id)
+    item = db.query(CartItem).filter(CartItem.cart_item_id == cart_item_id, CartItem.cart_id == cart.cart_id).first()
+    
+    if not item:
+        raise HTTPException(status_code=404, detail="Sản phẩm không có trong giỏ.")
+    
+    # Validate quantity
+    if item_data.quantity < 1:
+        raise HTTPException(status_code=400, detail="Số lượng phải >= 1")
+    
+    # Check stock
+    product = db.query(Product).filter(Product.product_id == item.product_id).first()
+    if product.quantity < item_data.quantity:
+        raise HTTPException(status_code=400, detail=f"Chỉ còn {product.quantity} sản phẩm trong kho")
+    
+    # Update quantity
+    item.quantity = item_data.quantity
+    db.commit()
+    
+    # Return updated cart
+    cart = get_or_create_active_cart(db, current_user.user_id)
+    return serialize_cart(cart)
+
 @router.delete("/items/{cart_item_id}")
 def remove_from_cart(
     cart_item_id: int, 
