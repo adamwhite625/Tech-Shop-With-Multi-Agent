@@ -1,7 +1,11 @@
 version: "3.8"
 
 services:
-  # 1. Dịch vụ Database MySQL (Dành cho Website Backend)
+  # =====================================================
+  # 1. Infrastructure Services
+  # =====================================================
+
+  # MySQL Database (Website Backend + Order Agent)
   mysql_db:
     image: mysql:8.0
     container_name: tech_mysql
@@ -10,37 +14,164 @@ services:
       MYSQL_DATABASE: tech_store_db
       MYSQL_ROOT_PASSWORD: root
     ports:
-      # Nếu bạn vẫn đang bật project cũ, hãy đổi cổng host thành 3307:3306 để tránh xung đột
       - "3306:3306"
     volumes:
-      # Nạp schema tự động (Giữ nguyên của bạn)
       - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
-      # Dùng named volume có tiền tố 'tech_' để không bị nhầm với project khác
       - tech_mysql_data:/var/lib/mysql
     command: --default-authentication-plugin=mysql_native_password
     networks:
       - tech_network
+    healthcheck:
+      test:
+        ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
 
-  # 2. Dịch vụ Vector Database Qdrant (Dành cho AI Search Agent)
+  # Qdrant Vector Database (Search Agent)
   qdrant:
     image: qdrant/qdrant:latest
     container_name: tech_qdrant
     restart: always
     ports:
-      # Đổi thành 6335:6333 nếu bị trùng với project law_chatbot cũ
       - "6333:6333"
       - "6334:6334"
     volumes:
       - tech_qdrant_data:/qdrant/storage
     networks:
       - tech_network
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "sh",
+          "-c",
+          "exec 3<>/dev/tcp/localhost/6333 && echo 'OK' && exec 3>&-",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
 
-# Định nghĩa mạng nội bộ cho các container giao tiếp với nhau
+  # Redis (Order Agent chat memory)
+  redis:
+    image: redis:7-alpine
+    container_name: tech_redis
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - tech_redis_data:/data
+    networks:
+      - tech_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  # =====================================================
+  # 2. AI Agent Services
+  # =====================================================
+
+  # Search Agent — Semantic & Image Search (Qdrant + CLIP)
+  search_agent:
+    build: ./tech_agent/search_agent
+    container_name: tech_search_agent
+    restart: always
+    ports:
+      - "8001:8001"
+    env_file:
+      - ./tech_agent/search_agent/.env
+    depends_on:
+      qdrant:
+        condition: service_started
+    networks:
+      - tech_network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8001/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s # Models take time to load
+
+  # Advisor Agent — RAG-based Tech Consultant
+  advisor_agent:
+    build: ./tech_agent/advisor_agent
+    container_name: tech_advisor_agent
+    restart: always
+    ports:
+      - "8002:8002"
+    env_file:
+      - ./tech_agent/advisor_agent/.env
+    depends_on:
+      search_agent:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - tech_network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8002/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Order Agent — Order Management with Tool Calling
+  order_agent:
+    build: ./tech_agent/order_agent
+    container_name: tech_order_agent
+    restart: always
+    ports:
+      - "8003:8003"
+    env_file:
+      - ./tech_agent/order_agent/.env
+    depends_on:
+      mysql_db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - tech_network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8003/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Host Agent — Orchestrator / API Gateway
+  host_agent:
+    build: ./tech_agent/host_agent
+    container_name: tech_host_agent
+    restart: always
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./tech_agent/host_agent/.env
+    depends_on:
+      search_agent:
+        condition: service_healthy
+      advisor_agent:
+        condition: service_healthy
+      order_agent:
+        condition: service_healthy
+    networks:
+      - tech_network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8000/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+# =====================================================
+# Networks & Volumes
+# =====================================================
 networks:
   tech_network:
     driver: bridge
 
-# Định nghĩa nơi lưu trữ dữ liệu vĩnh viễn (Named Volumes)
 volumes:
   tech_mysql_data:
   tech_qdrant_data:
+  tech_redis_data:

@@ -1,7 +1,15 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { MessageSquare, X, Send, Bot, User, Loader2 } from "lucide-react";
+import {
+  MessageSquare,
+  X,
+  Send,
+  Bot,
+  User,
+  Loader2,
+  Upload,
+} from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { aiClient } from "@/lib/axios";
 import { useStore } from "@/store/useStore";
@@ -25,6 +33,7 @@ export default function Chatbot() {
   ]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Tạo Session ID độc nhất cho mỗi người dùng/phiên chat
   const [sessionId] = useState(
@@ -102,6 +111,74 @@ export default function Chatbot() {
     }
   };
 
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Thêm preview hình ảnh vào chat
+    const imageUrl = URL.createObjectURL(file);
+    setMessages((prev) => [
+      ...prev,
+      {
+        id: Date.now().toString(),
+        role: "user",
+        content: `[Hình ảnh: ${file.name}]`,
+      },
+    ]);
+
+    setIsLoading(true);
+
+    try {
+      // Gửi ảnh tới Search Agent
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const res = await fetch("http://localhost:8001/api/search/image", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+      }
+
+      const data = await res.json();
+
+      // Xử lý kết quả tìm kiếm ảnh
+      let aiResponseContent = "Dựa trên hình ảnh bạn gửi, tôi tìm thấy:\n";
+      if (data.results && data.results.length > 0) {
+        data.results.forEach((item: any) => {
+          const matchScore = item.match_score || item.score || 0;
+          aiResponseContent += `- **${item.title}** - Độ tương đồng: ${(matchScore * 100).toFixed(1)}%\n`;
+        });
+      } else {
+        aiResponseContent =
+          "Xin lỗi, tôi không tìm thấy sản phẩm nào tương tự với hình ảnh này.";
+      }
+
+      setMessages((prev) => [
+        ...prev,
+        { id: Date.now().toString(), role: "ai", content: aiResponseContent },
+      ]);
+    } catch (error) {
+      console.error("Image search error:", error);
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: Date.now().toString(),
+          role: "ai",
+          content:
+            "Xin lỗi, có lỗi khi xử lý hình ảnh. Vui lòng thử lại sau.\n\nGợi ý: Kiểm tra xem Search Agent có chạy ở port 8001 không.",
+        },
+      ]);
+    } finally {
+      setIsLoading(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    }
+  };
+
   return (
     <>
       {/* Nút bấm mở Chat lơ lửng */}
@@ -171,6 +248,26 @@ export default function Chatbot() {
             onSubmit={handleSendMessage}
             className="p-3 bg-white border-t border-border flex items-center gap-2"
           >
+            {/* Hidden file input */}
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleImageUpload}
+              className="hidden"
+            />
+
+            {/* Image upload button */}
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isLoading}
+              className="p-2.5 bg-gray-100 text-text-muted hover:bg-gray-200 disabled:bg-gray-300 disabled:cursor-not-allowed rounded-full transition-colors"
+              title="Upload hình ảnh"
+            >
+              <Upload size={18} />
+            </button>
+
             <input
               type="text"
               value={input}
