@@ -27,12 +27,12 @@ def get_products(
     if search:
         query = query.filter(Product.title.ilike(f"%{search}%"))
 
-    # 4. Đếm tổng số sản phẩm thỏa mãn điều kiện
-    total = query.count()
+    # 4. Đếm tổng số sản phẩm thỏa mãn điều kiện (TRƯỚC distinct)
+    total = query.distinct().count()
 
-    # 5. Phân trang (Pagination)
+    # 5. Phân trang (Pagination) - Thêm .distinct() để tránh lặp dữ liệu
     skip = (page - 1) * size
-    products = query.order_by(Product.created_at.desc()).offset(skip).limit(size).all()
+    products = query.order_by(Product.created_at.desc()).offset(skip).limit(size).distinct().all()
 
     return {
         "total": total,

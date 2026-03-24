@@ -16,31 +16,72 @@ interface Product {
   slug: string;
 }
 
+// Định nghĩa kiểu dữ liệu Danh mục
+interface Category {
+  category_id: number;
+  title: string;
+  slug: string;
+}
+
+// Kiểu dữ liệu danh mục kèm sản phẩm
+interface CategoryWithProducts {
+  category: Category;
+  products: Product[];
+}
+
 export default function Home() {
-  const [products, setProducts] = useState<Product[]>([]);
+  const [categorizedProducts, setCategorizedProducts] = useState<
+    CategoryWithProducts[]
+  >([]);
   const [loading, setLoading] = useState(true);
   const { setCartCount } = useStore();
 
   useEffect(() => {
-    fetchProducts();
+    fetchCategoriesAndProducts();
   }, []);
 
-  const fetchProducts = async () => {
+  const fetchCategoriesAndProducts = async () => {
     try {
-      // 1. CHÚ Ý THÊM DẤU "/" Ở CUỐI ĐỂ KHỚP 100% VỚI FASTAPI SWAGGER
-      const res = await webClient.get("/products/");
+      // 1. Lấy danh sách danh mục
+      const categoriesRes = await webClient.get("/categories/");
+      let categories: Category[] = categoriesRes.data || [];
 
-      console.log("Dữ liệu nhận được:", res.data);
+      console.log("Danh mục nhận được:", categories);
 
-      // 2. Lấy chính xác mảng sản phẩm từ res.data.data theo Swagger
-      if (res.data && Array.isArray(res.data.data)) {
-        setProducts(res.data.data);
-      } else {
-        console.warn("Không tìm thấy mảng 'data' trong response", res.data);
-        setProducts([]);
+      // Lọc bỏ danh mục "Root" hoặc danh mục không có sluzg hoặc tên là "Root"
+      categories = categories.filter(
+        (cat) => cat.title?.toLowerCase() !== "root" && cat.slug !== "root",
+      );
+
+      // 2. Lấy sản phẩm của từng danh mục
+      const categorizedData: CategoryWithProducts[] = [];
+
+      for (const category of categories) {
+        try {
+          const productsRes = await webClient.get(`/products/`, {
+            params: {
+              category_id: category.category_id,
+              size: 10, // Hiển thị 10 sản phẩm per danh mục
+            },
+          });
+
+          if (productsRes.data?.data && Array.isArray(productsRes.data.data)) {
+            // Chỉ thêm vào nếu có sản phẩm
+            if (productsRes.data.data.length > 0) {
+              categorizedData.push({
+                category,
+                products: productsRes.data.data,
+              });
+            }
+          }
+        } catch (err) {
+          console.warn(`Lỗi tải sản phẩm danh mục ${category.title}:`, err);
+        }
       }
+
+      setCategorizedProducts(categorizedData);
     } catch (error) {
-      console.error("Lỗi khi tải API Sản phẩm:", error);
+      console.error("Lỗi khi tải danh mục:", error);
     } finally {
       setLoading(false);
     }
@@ -96,77 +137,91 @@ export default function Home() {
           </div>
 
           <div className="md:w-1/2 mt-8 md:mt-0 flex justify-end">
-            <div className="w-full max-w-md h-64 bg-white/10 rounded-2xl flex items-center justify-center backdrop-blur-sm border border-white/20">
-              <span className="text-2xl font-bold text-white/50">
-                PinkCapy Banner Area
-              </span>
-            </div>
+            <img
+              src="/images/banner.webp"
+              alt="Đại Tiệc Công Nghệ"
+              className="w-full max-w-md h-64 object-cover rounded-2xl shadow-lg"
+            />
           </div>
         </div>
       </div>
 
-      {/* --- DANH SÁCH SẢN PHẨM --- */}
-      <div className="container-custom">
-        <div className="flex items-center gap-2 mb-6 border-b-2 border-primary pb-2 inline-flex">
-          <Flame size={28} className="text-primary" />
-          <h2 className="text-2xl font-bold uppercase text-text-main">
-            Sản Phẩm Nổi Bật
-          </h2>
+      {/* --- DANH SÁCH SẢN PHẨM THEO DANH MỤC --- */}
+      {loading ? (
+        <div className="flex justify-center py-20">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
         </div>
-
-        {loading ? (
-          <div className="flex justify-center py-20">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-          </div>
-        ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-            {products.slice(0, 10).map((product) => (
-              <div
-                key={product.product_id}
-                className="bg-white rounded-lg border border-border overflow-hidden hover:shadow-lg transition-all group flex flex-col"
-              >
-                {/* Ảnh sản phẩm */}
-                <Link
-                  href={`/products/${product.slug}`}
-                  className="block relative aspect-square p-4 bg-gray-50 flex items-center justify-center"
-                >
-                  {product.thumb ? (
-                    <img
-                      src={buildImageUrl(product.thumb)}
-                      alt={product.title}
-                      className="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform"
-                    />
-                  ) : (
-                    <div className="text-gray-300">No Image</div>
-                  )}
-                </Link>
-
-                {/* Thông tin */}
-                <div className="p-3 flex flex-col flex-grow">
-                  <Link
-                    href={`/products/${product.slug}`}
-                    className="text-sm text-text-main font-medium line-clamp-2 hover:text-primary mb-2 flex-grow"
-                  >
-                    {product.title}
-                  </Link>
-
-                  {/* FIX LỖI PRICE Ở ĐÂY */}
-                  <div className="font-bold text-primary text-lg mb-3">
-                    {Number(product.price).toLocaleString("vi-VN")} đ
-                  </div>
-
-                  <button
-                    onClick={() => addToCart(product.product_id)}
-                    className="w-full bg-blue-btn hover:bg-blue-600 text-white font-medium py-2 rounded-md flex justify-center items-center gap-2 transition-colors mt-auto text-sm"
-                  >
-                    <ShoppingCart size={16} /> Thêm vào giỏ
-                  </button>
-                </div>
+      ) : (
+        <div className="space-y-12">
+          {categorizedProducts.map((categoryData) => (
+            <div
+              key={categoryData.category.category_id}
+              className="container-custom"
+            >
+              {/* Tiêu đề danh mục */}
+              <div className="flex items-center gap-2 mb-6 border-b-2 border-primary pb-2 inline-flex">
+                <Flame size={28} className="text-primary" />
+                <h2 className="text-2xl font-bold uppercase text-text-main">
+                  {categoryData.category.title}
+                </h2>
               </div>
-            ))}
-          </div>
-        )}
-      </div>
+
+              {/* Danh sách sản phẩm của danh mục */}
+              {categoryData.products.length > 0 ? (
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                  {categoryData.products.map((product) => (
+                    <div
+                      key={product.product_id}
+                      className="bg-white rounded-lg border border-border overflow-hidden hover:shadow-lg transition-all group flex flex-col"
+                    >
+                      {/* Ảnh sản phẩm */}
+                      <Link
+                        href={`/products/${product.slug}`}
+                        className="block relative aspect-square p-4 bg-gray-50 flex items-center justify-center"
+                      >
+                        {product.thumb ? (
+                          <img
+                            src={buildImageUrl(product.thumb)}
+                            alt={product.title}
+                            className="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform"
+                          />
+                        ) : (
+                          <div className="text-gray-300">No Image</div>
+                        )}
+                      </Link>
+
+                      {/* Thông tin */}
+                      <div className="p-3 flex flex-col flex-grow">
+                        <Link
+                          href={`/products/${product.slug}`}
+                          className="text-sm text-text-main font-medium line-clamp-2 hover:text-primary mb-2 flex-grow"
+                        >
+                          {product.title}
+                        </Link>
+
+                        <div className="font-bold text-primary text-lg mb-3">
+                          {Number(product.price).toLocaleString("vi-VN")} đ
+                        </div>
+
+                        <button
+                          onClick={() => addToCart(product.product_id)}
+                          className="w-full bg-blue-btn hover:bg-blue-600 text-white font-medium py-2 rounded-md flex justify-center items-center gap-2 transition-colors mt-auto text-sm"
+                        >
+                          <ShoppingCart size={16} /> Thêm vào giỏ
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-8 text-text-muted">
+                  Chưa có sản phẩm trong danh mục này
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
