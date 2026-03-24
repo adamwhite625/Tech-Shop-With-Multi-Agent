@@ -18,6 +18,7 @@ type Message = {
   id: string;
   role: "user" | "ai";
   content: string;
+  imageUrl?: string;
 };
 
 export default function Chatbot() {
@@ -28,7 +29,7 @@ export default function Chatbot() {
       id: "welcome",
       role: "ai",
       content:
-        "Xin chào! Tôi là Trợ lý AI của PinkCapy Tech Store. Tôi có thể giúp bạn tìm kiếm sản phẩm, tư vấn cấu hình, hoặc tra cứu/hủy đơn hàng. Bạn cần giúp gì nào?",
+        "Xin chào! Tôi là Trợ lý AI của Tech Store. Tôi có thể giúp bạn tìm kiếm sản phẩm, tư vấn cấu hình, hoặc tra cứu/hủy đơn hàng. Bạn cần giúp gì nào?",
     },
   ]);
   const [input, setInput] = useState("");
@@ -122,7 +123,8 @@ export default function Chatbot() {
       {
         id: Date.now().toString(),
         role: "user",
-        content: `[Hình ảnh: ${file.name}]`,
+        content: "Đã gửi hình ảnh",
+        imageUrl: imageUrl, // Lưu URL ảnh
       },
     ]);
 
@@ -197,7 +199,7 @@ export default function Chatbot() {
             <div className="flex items-center gap-2">
               <Bot size={24} />
               <div>
-                <h3 className="font-bold">Trợ lý AI PinkCapy</h3>
+                <h3 className="font-bold">Trợ lý AI</h3>
                 <p className="text-xs text-red-100">Đang hoạt động</p>
               </div>
             </div>
@@ -225,7 +227,20 @@ export default function Chatbot() {
                 <div
                   className={`p-3 rounded-2xl max-w-[80%] ${msg.role === "user" ? "bg-blue-btn text-white rounded-tr-none" : "bg-white text-text-main border border-border rounded-tl-none shadow-sm prose prose-sm prose-p:leading-relaxed prose-pre:bg-gray-100"}`}
                 >
-                  <ReactMarkdown>{msg.content}</ReactMarkdown>
+                  {msg.imageUrl ? (
+                    // Hiển thị hình ảnh nếu có imageUrl
+                    <div className="flex flex-col gap-2">
+                      <img
+                        src={msg.imageUrl}
+                        alt="Uploaded"
+                        className="max-w-full h-auto rounded-lg max-h-64 object-cover"
+                      />
+                      {msg.content && <p className="text-sm">{msg.content}</p>}
+                    </div>
+                  ) : (
+                    // Hiển thị text markdown nếu không có ảnh
+                    <ReactMarkdown>{msg.content}</ReactMarkdown>
+                  )}
                 </div>
               </div>
             ))}
