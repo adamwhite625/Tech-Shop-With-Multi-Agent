@@ -235,7 +235,7 @@ tech-ecommerce-system/
 
 ```bash
 git clone https://github.com/adamwhite625/Tech-Shop-With-Multi-Agent.git
-cd tech-ecommerce-system
+cd Tech-Shop-With-Multi-Agent
 ```
 
 ### Step 2: Configure Environment Variables
