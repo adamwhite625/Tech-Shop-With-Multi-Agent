@@ -29,10 +29,10 @@ export default function Header() {
     router.push("/login");
   };
 
-  if (!isMounted) return null; // Tránh lỗi giao diện nhấp nháy
+  if (!isMounted) return null;
 
   return (
-    <header className="w-full relative z-50">
+    <header className="w-full sticky top-0 z-50 shadow-sm">
       {/* --- TOP BAR (Màu Đỏ Gradient giống Laravel cũ) --- */}
       <div className="header-gradient text-white py-3 shadow-md">
         <div className="container-custom flex flex-wrap md:flex-nowrap items-center justify-between gap-4">

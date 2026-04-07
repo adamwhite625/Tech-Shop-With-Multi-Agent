@@ -40,7 +40,7 @@ export default function CartPage() {
 
   useEffect(() => {
     // Nếu chưa đăng nhập, đá về trang login
-    if (!sessionStorage.getItem("token")) {
+    if (!localStorage.getItem("token")) {
       router.push("/login");
       return;
     }
