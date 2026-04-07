@@ -88,7 +88,55 @@ def cancel_order(order_id: int) -> str:
     except Exception as e:
         return f"Lỗi hệ thống khi hủy đơn: {str(e)}"
 
-tools = [check_order_status, cancel_order]
+@tool
+def get_my_orders(user_id: int) -> str:
+    """BẮT BUỘC DÙNG CÔNG CỤ NÀY khi khách hỏi họ có đơn hàng nào không, hoặc muốn xem danh sách các đơn đặt hàng cũ. Tham số truyền vào là user_id (lấy từ system prompt)."""
+    try:
+        with engine.connect() as conn:
+            query = text("SELECT order_id, status, grand_total, created_at FROM orders WHERE user_id = :uid ORDER BY order_id DESC LIMIT 5")
+            results = conn.execute(query, {"uid": user_id}).fetchall()
+            
+            if not results:
+                return "Bạn chưa có đơn hàng nào."
+            
+            status_map = {1: "Pending", 2: "Paid", 3: "Shipping", 8: "Cancelled"}
+            res_text = "Các đơn hàng gần đây của bạn:\n"
+            for row in results:
+                status_text = status_map.get(row[1], "Unknown")
+                res_text += f"- Mã #{row[0]}: {row[2]:,.0f} VND - Trạng thái: {status_text} (Đặt {row[3]})\n"
+            return res_text
+    except Exception as e:
+        return f"Lỗi hệ thống khi lấy đơn hàng: {str(e)}"
+
+@tool
+def get_my_cart(user_id: int) -> str:
+    """BẮT BUỘC DÙNG CÔNG CỤ NÀY khi khách hỏi về nội dung giỏ hàng (cart) của họ. Tham số truyền vào là user_id."""
+    try:
+        with engine.connect() as conn:
+            query = text("""
+                SELECT p.title, ci.quantity, ci.price 
+                FROM cart_items ci
+                JOIN carts c ON ci.cart_id = c.cart_id
+                JOIN products p ON ci.product_id = p.product_id
+                WHERE c.user_id = :uid AND c.status = 1
+            """)
+            results = conn.execute(query, {"uid": user_id}).fetchall()
+            
+            if not results:
+                return "Giỏ hàng của bạn đang trống."
+                
+            res_text = "Giỏ hàng của bạn bao gồm:\n"
+            total = 0
+            for row in results:
+                sub = row[1] * row[2]
+                res_text += f"- {row[0]} x {row[1]} cái\n"
+                total += sub
+            res_text += f"Tổng cộng: {total:,.0f} VNĐ"
+            return res_text
+    except Exception as e:
+        return f"Lỗi hệ thống khi lấy giỏ hàng: {str(e)}"
+
+tools = [check_order_status, cancel_order, get_my_orders, get_my_cart]
 
 # ---------------------------------------------------------
 # LLM & Prompt — with chat_history placeholder for memory
@@ -99,10 +147,15 @@ prompt = ChatPromptTemplate.from_messages([
     (
         "system",
         "Bạn là trợ lý AI quản lý đơn hàng của Tech Store. "
-        "Bạn có thể tra cứu và hủy đơn hàng giúp khách. "
+        "Bạn có thể:\n"
+        "1. Tra cứu và hủy đơn hàng BẰNG MÃ ĐƠN HÀNG (ID cụ thể).\n"
+        "2. Tra cứu danh sách các đơn hàng hiện có CỦA KHÁCH.\n"
+        "3. Tra cứu giỏ hàng CỦA KHÁCH.\n"
+        "QUAN TRỌNG: Khi khách hỏi về giỏ hàng hoặc danh sách đơn hàng, BẠN BẮT BUỘC PHẢI DÙNG TOOL (get_my_orders, get_my_cart). TUYỆT ĐỐI không được báo lỗi là không có quyền truy cập. Bạn chỉ cần truyền user_id từ hệ thống vào tool.\n"
         "Hãy luôn trả lời bằng tiếng Việt, lịch sự và ngắn gọn. "
         "Khi gọi tool trả về kết quả, hãy diễn đạt lại cho tự nhiên. "
-        "Sử dụng lịch sử hội thoại để hiểu ngữ cảnh (ví dụ: 'đơn đó', 'hủy đi'...)."
+        "Sử dụng lịch sử hội thoại để hiểu ngữ cảnh (ví dụ: 'đơn đó', 'hủy đi'...).\n"
+        "{user_context}"
     ),
     ("placeholder", "{chat_history}"),   # ← Redis history injected here
     ("human", "{input}"),
@@ -147,10 +200,21 @@ async def process_order_request(request: ChatRequest):
         chat_history = history.messages  # list[BaseMessage]
         logger.info(f"[{request.session_id}] Loaded {len(chat_history)} messages from Redis history.")
 
+        # Extract user_id from session_id
+        user_id = None
+        if request.session_id.startswith("user_"):
+            try:
+                user_id = int(request.session_id.split("_")[1])
+            except ValueError:
+                pass
+        
+        user_context = f"Thông tin khách hàng: user_id = {user_id}" if user_id else "Khách hàng chưa đăng nhập, không có thông tin user_id."
+
         # 2. Run agent with full conversation context
         response = agent_executor.invoke({
             "input": request.message,
             "chat_history": chat_history,
+            "user_context": user_context,
         })
         answer = response["output"]
 

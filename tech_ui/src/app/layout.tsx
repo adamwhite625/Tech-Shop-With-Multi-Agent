@@ -7,6 +7,9 @@ import Footer from "@/components/Footer";
 export const metadata: Metadata = {
   title: "PinkCapy Tech Store",
   description: "Cửa hàng công nghệ đa tác vụ AI Multi-Agent",
+  icons: {
+    icon: "/images/LOGO_Admin.png",
+  },
 };
 
 export default function RootLayout({

@@ -94,7 +94,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 60s # Models take time to load
+      start_period: 300s # Models take a long time to load into memory
 
   # Advisor Agent — RAG-based Tech Consultant
   advisor_agent:

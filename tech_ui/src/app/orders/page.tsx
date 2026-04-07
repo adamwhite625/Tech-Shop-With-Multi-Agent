@@ -29,7 +29,7 @@ export default function OrdersPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!sessionStorage.getItem("token")) {
+    if (!localStorage.getItem("token")) {
       router.push("/login");
       return;
     }

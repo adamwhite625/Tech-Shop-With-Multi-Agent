@@ -37,7 +37,7 @@ export default function ProfilePage() {
   const [passMessage, setPassMessage] = useState({ type: "", text: "" });
 
   useEffect(() => {
-    if (!sessionStorage.getItem("token")) {
+    if (!localStorage.getItem("token")) {
       router.push("/login");
       return;
     }

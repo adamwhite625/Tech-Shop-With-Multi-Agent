@@ -35,7 +35,7 @@ export default function CheckoutPage() {
   });
 
   useEffect(() => {
-    if (!sessionStorage.getItem("token")) {
+    if (!localStorage.getItem("token")) {
       router.push("/login");
       return;
     }
