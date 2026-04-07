@@ -91,12 +91,12 @@ Host Agent (Intent Classification via GPT-4o-mini)
 
 The system implements a **Host-Delegate** pattern with 4 specialized agents:
 
-| Agent | Port | Role | Key Technology |
-|---|---|---|---|
-| **Host Agent** | 8000 | Orchestrator / API Gateway. Classifies user intent and routes to the correct specialist agent. | GPT-4o-mini (Structured Output), SlowAPI, Tenacity |
-| **Search Agent** | 8001 | Handles semantic text search and image-based search against the product catalog. | SentenceTransformers, CLIP, Qdrant |
-| **Advisor Agent** | 8002 | RAG-based tech consultant. Retrieves product context from Search Agent, then generates advice using LLM. | LangChain, GPT-4o-mini, Redis Memory |
-| **Order Agent** | 8003 | Manages order inquiries using LLM Tool Calling (check status, cancel orders). | LangChain AgentExecutor, Tool Calling, MySQL, Redis Memory |
+| Agent                   | Port | Role                                                                                                     | Key Technology                                             |
+| ----------------------- | ---- | -------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------- |
+| **Host Agent**    | 8000 | Orchestrator / API Gateway. Classifies user intent and routes to the correct specialist agent.           | GPT-4o-mini (Structured Output), SlowAPI, Tenacity         |
+| **Search Agent**  | 8001 | Handles semantic text search and image-based search against the product catalog.                         | SentenceTransformers, CLIP, Qdrant                         |
+| **Advisor Agent** | 8002 | RAG-based tech consultant. Retrieves product context from Search Agent, then generates advice using LLM. | LangChain, GPT-4o-mini, Redis Memory                       |
+| **Order Agent**   | 8003 | Manages order inquiries using LLM Tool Calling (check status, cancel orders).                            | LangChain AgentExecutor, Tool Calling, MySQL, Redis Memory |
 
 ### E-commerce Backend (Website Backend)
 
@@ -109,14 +109,14 @@ A standard FastAPI application providing RESTful APIs for the storefront:
 
 ### Tech Stack
 
-| Layer | Technologies |
-|---|---|
-| **AI / LLM** | OpenAI GPT-4o-mini, LangChain, LangGraph, Pydantic v2 |
-| **Search** | SentenceTransformers (MiniLM, CLIP), Qdrant Vector DB |
-| **Backend** | FastAPI, SQLAlchemy, PyJWT, Passlib |
-| **Database** | MySQL 8.0 (Relational), Qdrant (Vector), Redis 7 (Chat Memory) |
-| **Frontend** | Next.js 16, React 19, TypeScript, TailwindCSS v4, Zustand |
-| **Infrastructure** | Docker Compose, Uvicorn, Structured JSON Logging |
+| Layer                    | Technologies                                                   |
+| ------------------------ | -------------------------------------------------------------- |
+| **AI / LLM**       | OpenAI GPT-4o-mini, LangChain, LangGraph, Pydantic v2          |
+| **Search**         | SentenceTransformers (MiniLM, CLIP), Qdrant Vector DB          |
+| **Backend**        | FastAPI, SQLAlchemy, PyJWT, Passlib                            |
+| **Database**       | MySQL 8.0 (Relational), Qdrant (Vector), Redis 7 (Chat Memory) |
+| **Frontend**       | Next.js 16, React 19, TypeScript, TailwindCSS v4, Zustand      |
+| **Infrastructure** | Docker Compose, Uvicorn, Structured JSON Logging               |
 
 ---
 
@@ -267,17 +267,31 @@ docker-compose up -d
 
 This will build and start 7 containers:
 
-| Container | Service | Port |
-|---|---|---|
-| `tech_mysql` | MySQL 8.0 | 3306 |
-| `tech_qdrant` | Qdrant Vector DB | 6333 |
-| `tech_redis` | Redis 7 | 6379 |
-| `tech_search_agent` | Search Agent | 8001 |
-| `tech_advisor_agent` | Advisor Agent | 8002 |
-| `tech_order_agent` | Order Agent | 8003 |
-| `tech_host_agent` | Host Agent (Gateway) | 8000 |
+| Container              | Service              | Port |
+| ---------------------- | -------------------- | ---- |
+| `tech_mysql`         | MySQL 8.0            | 3306 |
+| `tech_qdrant`        | Qdrant Vector DB     | 6333 |
+| `tech_redis`         | Redis 7              | 6379 |
+| `tech_search_agent`  | Search Agent         | 8001 |
+| `tech_advisor_agent` | Advisor Agent        | 8002 |
+| `tech_order_agent`   | Order Agent          | 8003 |
+| `tech_host_agent`    | Host Agent (Gateway) | 8000 |
 
-### Step 4: Seed the Database
+### Step 4: Create and Activate Anaconda Environment (Python Backend)
+
+We highly recommend using Anaconda to manage Python dependencies for the backend services and seed scripts to prevent conflicts.
+
+```bash
+# Create a new conda environment named 'tech_ecommerce' with Python 3.11
+conda create -n tech_ecommerce python=3.12 -y
+
+# Activate the environment
+conda activate tech_ecommerce
+```
+
+### Step 5: Seed the Database
+
+Ensure your `tech_ecommerce` conda environment is activated before proceeding.
 
 ```bash
 cd website_backend
@@ -294,12 +308,12 @@ python create_users.py
 
 **Default credentials after seeding:**
 
-| Role | Email | Password |
-|---|---|---|
+| Role  | Email                  | Password      |
+| ----- | ---------------------- | ------------- |
 | Admin | `admin@techshop.com` | `Admin@123` |
-| User | `user@techshop.com` | `User@123` |
+| User  | `user@techshop.com`  | `User@123`  |
 
-### Step 5: Ingest Product Data into Qdrant
+### Step 6: Ingest Product Data into Qdrant
 
 ```bash
 cd tech_agent/search_agent/app
@@ -311,14 +325,14 @@ python ingest_data.py
 python ingest_images.py
 ```
 
-### Step 6: Run the Website Backend
+### Step 7: Run the Website Backend
 
 ```bash
 cd website_backend
 uvicorn app.main:app --reload --port 8081
 ```
 
-### Step 7: Run the Frontend
+### Step 8: Run the Frontend
 
 ```bash
 cd tech_ui
@@ -326,17 +340,17 @@ npm install
 npm run dev
 ```
 
-### Step 8: Verify the Installation
+### Step 9: Verify the Installation
 
-| Service | URL |
-|---|---|
-| Frontend | `http://localhost:3000` |
-| Website Backend API Docs | `http://localhost:8081/docs` |
-| Host Agent Health | `http://localhost:8000/health` |
-| Search Agent Health | `http://localhost:8001/health` |
-| Advisor Agent Health | `http://localhost:8002/health` |
-| Order Agent Health | `http://localhost:8003/health` |
-| Qdrant Dashboard | `http://localhost:6333/dashboard` |
+| Service                  | URL                                 |
+| ------------------------ | ----------------------------------- |
+| Frontend                 | `http://localhost:3000`           |
+| Website Backend API Docs | `http://localhost:8081/docs`      |
+| Host Agent Health        | `http://localhost:8000/health`    |
+| Search Agent Health      | `http://localhost:8001/health`    |
+| Advisor Agent Health     | `http://localhost:8002/health`    |
+| Order Agent Health       | `http://localhost:8003/health`    |
+| Qdrant Dashboard         | `http://localhost:6333/dashboard` |
 
 ---
 
@@ -346,32 +360,32 @@ npm run dev
 
 All requests are prefixed with `/api`.
 
-| Category | Endpoint | Method | Description |
-|---|---|---|---|
-| **Auth** | `/api/auth/register` | POST | Register a new user |
-| **Auth** | `/api/auth/token` | POST | Login and receive JWT |
-| **Categories** | `/api/categories/` | GET | List all product categories |
-| **Products** | `/api/products/` | GET | List products (with pagination & category filter) |
-| **Cart** | `/api/cart/items` | POST | Add item to cart |
-| **Checkout** | `/api/checkout/` | POST | Convert cart to order |
-| **Orders** | `/api/orders/` | GET | View order history |
+| Category             | Endpoint               | Method | Description                                       |
+| -------------------- | ---------------------- | ------ | ------------------------------------------------- |
+| **Auth**       | `/api/auth/register` | POST   | Register a new user                               |
+| **Auth**       | `/api/auth/token`    | POST   | Login and receive JWT                             |
+| **Categories** | `/api/categories/`   | GET    | List all product categories                       |
+| **Products**   | `/api/products/`     | GET    | List products (with pagination & category filter) |
+| **Cart**       | `/api/cart/items`    | POST   | Add item to cart                                  |
+| **Checkout**   | `/api/checkout/`     | POST   | Convert cart to order                             |
+| **Orders**     | `/api/orders/`       | GET    | View order history                                |
 
 ### Host Agent — AI Gateway (`localhost:8000`)
 
-| Endpoint | Method | Description |
-|---|---|---|
-| `/api/orchestrate` | POST | Send a text message. Host Agent classifies intent and routes to Search/Advisor/Order agent. |
-| `/api/orchestrate/image` | POST | Upload an image for visual product search (routed to Search Agent CLIP). |
-| `/health` | GET | Health check |
+| Endpoint                   | Method | Description                                                                                 |
+| -------------------------- | ------ | ------------------------------------------------------------------------------------------- |
+| `/api/orchestrate`       | POST   | Send a text message. Host Agent classifies intent and routes to Search/Advisor/Order agent. |
+| `/api/orchestrate/image` | POST   | Upload an image for visual product search (routed to Search Agent CLIP).                    |
+| `/health`                | GET    | Health check                                                                                |
 
 ### Specialist Agents (Internal)
 
-| Agent | Endpoint | Description |
-|---|---|---|
-| Search Agent | `POST /api/search` | Semantic text search |
-| Search Agent | `POST /api/search/image` | CLIP image search |
-| Advisor Agent | `POST /api/chat` | RAG conversation with product context |
-| Order Agent | `POST /api/chat` | Order inquiry with tool calling |
+| Agent         | Endpoint                   | Description                           |
+| ------------- | -------------------------- | ------------------------------------- |
+| Search Agent  | `POST /api/search`       | Semantic text search                  |
+| Search Agent  | `POST /api/search/image` | CLIP image search                     |
+| Advisor Agent | `POST /api/chat`         | RAG conversation with product context |
+| Order Agent   | `POST /api/chat`         | Order inquiry with tool calling       |
 
 ---
 
@@ -379,33 +393,33 @@ All requests are prefixed with `/api`.
 
 ### Host Agent (`tech_agent/host_agent/.env`)
 
-| Variable | Description | Default |
-|---|---|---|
-| `OPENAI_API_KEY` | OpenAI API key for intent classification | (required) |
-| `SEARCH_AGENT_URL` | Search Agent base URL | `http://search_agent:8001` |
-| `ADVISOR_AGENT_URL` | Advisor Agent base URL | `http://advisor_agent:8002` |
-| `ORDER_AGENT_URL` | Order Agent base URL | `http://order_agent:8003` |
+| Variable              | Description                              | Default                       |
+| --------------------- | ---------------------------------------- | ----------------------------- |
+| `OPENAI_API_KEY`    | OpenAI API key for intent classification | (required)                    |
+| `SEARCH_AGENT_URL`  | Search Agent base URL                    | `http://search_agent:8001`  |
+| `ADVISOR_AGENT_URL` | Advisor Agent base URL                   | `http://advisor_agent:8002` |
+| `ORDER_AGENT_URL`   | Order Agent base URL                     | `http://order_agent:8003`   |
 
 ### Search Agent (`tech_agent/search_agent/.env`)
 
-| Variable | Description | Default |
-|---|---|---|
+| Variable       | Description                | Default                |
+| -------------- | -------------------------- | ---------------------- |
 | `QDRANT_URL` | Qdrant vector database URL | `http://qdrant:6333` |
 
 ### Advisor Agent (`tech_agent/advisor_agent/.env`)
 
-| Variable | Description | Default |
-|---|---|---|
-| `OPENAI_API_KEY` | OpenAI API key for RAG generation | (required) |
-| `SEARCH_AGENT_URL` | Search Agent endpoint for context retrieval | `http://search_agent:8001/api/search` |
-| `REDIS_URL` | Redis URL for chat memory | `redis://redis:6379/0` |
-| `SESSION_TTL_SECONDS` | Chat session expiry time | `3600` |
+| Variable                | Description                                 | Default                                 |
+| ----------------------- | ------------------------------------------- | --------------------------------------- |
+| `OPENAI_API_KEY`      | OpenAI API key for RAG generation           | (required)                              |
+| `SEARCH_AGENT_URL`    | Search Agent endpoint for context retrieval | `http://search_agent:8001/api/search` |
+| `REDIS_URL`           | Redis URL for chat memory                   | `redis://redis:6379/0`                |
+| `SESSION_TTL_SECONDS` | Chat session expiry time                    | `3600`                                |
 
 ### Order Agent (`tech_agent/order_agent/.env`)
 
-| Variable | Description | Default |
-|---|---|---|
-| `OPENAI_API_KEY` | OpenAI API key for tool calling agent | (required) |
-| `DB_URL` | MySQL connection string for order queries | `mysql+pymysql://root:root@mysql_db:3306/tech_store_db` |
-| `REDIS_URL` | Redis URL for chat memory | `redis://redis:6379/0` |
-| `SESSION_TTL_SECONDS` | Chat session expiry time | `3600` |
+| Variable                | Description                               | Default                                                   |
+| ----------------------- | ----------------------------------------- | --------------------------------------------------------- |
+| `OPENAI_API_KEY`      | OpenAI API key for tool calling agent     | (required)                                                |
+| `DB_URL`              | MySQL connection string for order queries | `mysql+pymysql://root:root@mysql_db:3306/tech_store_db` |
+| `REDIS_URL`           | Redis URL for chat memory                 | `redis://redis:6379/0`                                  |
+| `SESSION_TTL_SECONDS` | Chat session expiry time                  | `3600`                                                  |
