@@ -234,7 +234,7 @@ tech-ecommerce-system/
 ### Step 1: Clone the Repository
 
 ```bash
-git clone https://github.com/adamwhite625/Tech-Shop-With-Multi-Agent.git
+git clone https://github.com/adamwhite625/Tech-Shop-With-Multi-Agent-System.git
 cd Tech-Shop-With-Multi-Agent
 ```
 
