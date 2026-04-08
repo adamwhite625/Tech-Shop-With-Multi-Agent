@@ -1,70 +1,109 @@
 import os
+import io
+import time
+import requests
 import pandas as pd
-from sentence_transformers import SentenceTransformer
-from qdrant_client import QdrantClient
-from qdrant_client.models import VectorParams, Distance, PointStruct
 from PIL import Image
-import logging
+from qdrant_client import QdrantClient
+from qdrant_client.http import models
+from sentence_transformers import SentenceTransformer
 
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
-
+# Cấu hình
+CSV_PATH = "data/products_valid.csv"
 QDRANT_URL = "http://localhost:6333"
-COLLECTION_IMAGE = "tech_products_images"
-MODEL_CLIP_NAME = "clip-ViT-B-32"
-IMAGE_FOLDER = "../data/images"
+COLLECTION_NAME = "tech_products_images"
 
-def ingest_images():
-    logger.info("Loading CLIP model...")
-    model = SentenceTransformer(MODEL_CLIP_NAME)
-    client = QdrantClient(url=QDRANT_URL)
-    
-    # Recreate Collection for Images
-    if client.collection_exists(collection_name=COLLECTION_IMAGE):
-        client.delete_collection(collection_name=COLLECTION_IMAGE)
-        
-    client.create_collection(
-        collection_name=COLLECTION_IMAGE,
-        vectors_config=VectorParams(size=512, distance=Distance.COSINE) # CLIP produces 512-dim vectors
-    )
-    
-    logger.info("Reading products.csv...")
+
+BASE_IMAGE_URL = "https://cdn2.cellphones.com.vn/insecure/rs:fill:300:300/q:90/plain/https://cellphones.com.vn/media/catalog/product" 
+
+def main():
+    print("1. Đang khởi tạo Qdrant Client và load model CLIP (có thể mất chút thời gian)...")
+    qdrant = QdrantClient(url=QDRANT_URL)
+    clip_model = SentenceTransformer('clip-ViT-B-32')
+
+    # Tạo collection nếu chưa có
     try:
-        df_products = pd.read_csv("../data/products.csv")
-    except FileNotFoundError:
-        logger.error("File products.csv not found!")
-        return
+        qdrant.get_collection(COLLECTION_NAME)
+        print(f"Collection '{COLLECTION_NAME}' đã tồn tại.")
+    except Exception:
+        print(f"Tạo mới collection '{COLLECTION_NAME}'...")
+        qdrant.create_collection(
+            collection_name=COLLECTION_NAME,
+            vectors_config=models.VectorParams(size=512, distance=models.Distance.COSINE),
+        )
+
+    print(f"2. Đang đọc dữ liệu từ {CSV_PATH}...")
+    df = pd.read_csv(CSV_PATH)
+    
+    # Giới hạn số lượng nạp thử nghiệm (thay đổi tuỳ ý)
+    # df = df.head(100) 
 
     points = []
-    logger.info("Processing images. Missing files will be skipped...")
-    
-    for index, row in df_products.iterrows():
-        try:
-            product_id = int(row['product_id'])
-            thumb_path = str(row['thumb'])
-            # Lấy tên file từ đường dẫn (VD: /d/o/dong-ho-abc.png -> dong-ho-abc.png)
-            filename = os.path.basename(thumb_path)
-            full_img_path = os.path.join(IMAGE_FOLDER, filename)
-            
-            if os.path.exists(full_img_path):
-                image = Image.open(full_img_path).convert("RGB")
-                vector = model.encode(image).tolist()
-                
-                payload = {
-                    "product_id": product_id,
-                    "title": str(row['title']),
-                    "thumb": thumb_path,
-                    "price": float(row['price']) if not pd.isna(row['price']) else 0.0,
-                }
-                points.append(PointStruct(id=product_id, vector=vector, payload=payload))
-        except Exception as e:
-            continue
+    success_count = 0
+    fail_count = 0
 
+    print("3. Bắt đầu xử lý và nạp vector ảnh vào Qdrant...")
+    for index, row in df.iterrows():
+        try:
+            product_id = str(row['product_id'])
+            title = str(row['title'])
+            thumb_path = str(row.get('thumb', ''))
+            
+            if not thumb_path or thumb_path == 'nan':
+                fail_count += 1
+                continue
+
+            # Thay đổi logic này nếu bạn lưu ảnh ở local folder
+            image_url = BASE_IMAGE_URL + thumb_path
+
+            # Tải ảnh về
+            response = requests.get(image_url, timeout=10)
+            if response.status_code != 200:
+                print(f"Lỗi tải ảnh {image_url}")
+                fail_count += 1
+                continue
+                
+            image = Image.open(io.BytesIO(response.content)).convert("RGB")
+            
+            # Chạy qua model CLIP để biến ảnh thành dãy số (vector 512 chiều)
+            vector = clip_model.encode(image).tolist()
+            
+            # Gom dữ liệu để đẩy lên Qdrant
+            points.append(
+                models.PointStruct(
+                    id=index, # Dùng index của dòng làm ID trong Qdrant
+                    vector=vector,
+                    payload={
+                        "product_id": product_id,
+                        "title": title,
+                        "thumb": thumb_path
+                    }
+                )
+            )
+            success_count += 1
+            
+            # Cứ mỗi 50 ảnh thì lưu vào Qdrant 1 lần cho lẹ
+            if len(points) >= 50:
+                qdrant.upsert(collection_name=COLLECTION_NAME, points=points)
+                points = []
+                print(f"  Đã nạp {success_count} ảnh...")
+                
+            # Tránh bị server block vì spam request tải ảnh
+            time.sleep(0.1) 
+            
+        except Exception as e:
+            print(f"Lỗi xử lý dòng {index}: {e}")
+            fail_count += 1
+
+    # Nạp nốt những ảnh còn dư chưa đủ 50 cái
     if points:
-        client.upsert(collection_name=COLLECTION_IMAGE, points=points)
-        logger.info(f"Successfully ingested {len(points)} images into Qdrant!")
-    else:
-        logger.warning("No images found or ingested.")
+        qdrant.upsert(collection_name=COLLECTION_NAME, points=points)
+
+    print("====================================")
+    print("HOÀN TẤT NẠP DỮ LIỆU ẢNH TRUY VẤN!")
+    print(f"- Thành công: {success_count} ảnh")
+    print(f"- Thất bại (Lỗi hoặc không có link): {fail_count} ảnh")
+    print("====================================")
 
 if __name__ == "__main__":
-    ingest_images()
+    main()
