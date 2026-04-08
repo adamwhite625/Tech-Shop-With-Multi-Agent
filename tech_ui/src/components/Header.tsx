@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Search, ShoppingCart, User, LogOut, Menu, Phone } from "lucide-react";
 import { useStore } from "@/store/useStore"; // Import Zustand store
@@ -10,12 +10,32 @@ export default function Header() {
   const router = useRouter();
   const { user, cartCount, logout } = useStore();
   const [searchQuery, setSearchQuery] = useState("");
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const profileRef = useRef<HTMLDivElement>(null);
 
   // Xử lý hydration mismatch (Lỗi render giữa server và client trong Next.js)
   const [isMounted, setIsMounted] = useState(false);
   useEffect(() => {
     setIsMounted(true);
   }, []);
+
+  // Click outside để đóng profile menu
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        profileRef.current &&
+        !profileRef.current.contains(event.target as Node)
+      ) {
+        setIsProfileOpen(false);
+      }
+    };
+
+    if (isProfileOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+      return () =>
+        document.removeEventListener("mousedown", handleClickOutside);
+    }
+  }, [isProfileOpen]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -95,39 +115,54 @@ export default function Header() {
 
             {/* Tài khoản */}
             {user ? (
-              <div className="group relative flex items-center gap-2 cursor-pointer">
-                <div className="bg-white/20 p-1.5 rounded-full">
-                  <User size={20} />
-                </div>
-                <div className="hidden sm:flex flex-col">
-                  <span className="text-xs text-gray-200">Xin chào,</span>
-                  <span className="font-bold text-sm truncate max-w-[100px]">
-                    {user.first_name}
-                  </span>
-                </div>
+              <div
+                ref={profileRef}
+                className="relative flex items-center gap-2"
+              >
+                <button
+                  onClick={() => setIsProfileOpen(!isProfileOpen)}
+                  className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
+                >
+                  <div className="bg-white/20 p-1.5 rounded-full">
+                    <User size={20} />
+                  </div>
+                  <div className="hidden sm:flex flex-col text-left">
+                    <span className="text-xs text-gray-200">Xin chào,</span>
+                    <span className="font-bold text-sm truncate max-w-[100px]">
+                      {user.first_name}
+                    </span>
+                  </div>
+                </button>
 
-                {/* Dropdown Menu */}
-                <div className="absolute top-full right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-2 hidden group-hover:block border border-border">
-                  <Link
-                    href="/profile"
-                    className="block px-4 py-2 text-text-main hover:bg-background hover:text-primary transition-colors text-sm"
-                  >
-                    Tài khoản của tôi
-                  </Link>
-                  <Link
-                    href="/orders"
-                    className="block px-4 py-2 text-text-main hover:bg-background hover:text-primary transition-colors text-sm"
-                  >
-                    Đơn mua
-                  </Link>
-                  <hr className="my-1 border-border" />
-                  <button
-                    onClick={handleLogout}
-                    className="w-full text-left px-4 py-2 text-danger hover:bg-background transition-colors text-sm flex items-center gap-2"
-                  >
-                    <LogOut size={16} /> Đăng xuất
-                  </button>
-                </div>
+                {/* Dropdown Menu - State Controlled */}
+                {isProfileOpen && (
+                  <div className="absolute top-full right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-2 border border-border z-50">
+                    <Link
+                      href="/profile"
+                      onClick={() => setIsProfileOpen(false)}
+                      className="block px-4 py-2 text-text-main hover:bg-background hover:text-primary transition-colors text-sm"
+                    >
+                      Tài khoản của tôi
+                    </Link>
+                    <Link
+                      href="/orders"
+                      onClick={() => setIsProfileOpen(false)}
+                      className="block px-4 py-2 text-text-main hover:bg-background hover:text-primary transition-colors text-sm"
+                    >
+                      Đơn mua
+                    </Link>
+                    <hr className="my-1 border-border" />
+                    <button
+                      onClick={() => {
+                        setIsProfileOpen(false);
+                        handleLogout();
+                      }}
+                      className="w-full text-left px-4 py-2 text-danger hover:bg-background transition-colors text-sm flex items-center gap-2"
+                    >
+                      <LogOut size={16} /> Đăng xuất
+                    </button>
+                  </div>
+                )}
               </div>
             ) : (
               <Link
