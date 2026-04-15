@@ -108,3 +108,6 @@ dist/
 .next/
 out/
 build/
+
+# Local documentation
+docs/

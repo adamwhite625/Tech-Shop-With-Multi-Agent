@@ -8,34 +8,11 @@ PinkCapy Tech Store is a full-stack tech e-commerce platform powered by a **Mult
 
 ### Overall Architecture
 
-```
-                          +-------------------+
-                          |    Next.js UI     |
-                          |   (Port 3000)     |
-                          +--------+----------+
-                                   |
-                    +--------------+--------------+
-                    |                              |
-           +-------v--------+           +---------v---------+
-           | Website Backend |           |    Host Agent     |
-           |  FastAPI :8081  |           | (Orchestrator)    |
-           |  (E-commerce    |           |   FastAPI :8000   |
-           |   Core API)     |           +--------+----------+
-           +-------+--------+                    |
-                   |                 +------------+-------------+
-                   |                 |            |             |
-            +------v------+   +-----v-----+ +---v------+ +----v------+
-            |   MySQL DB  |   |  Search   | | Advisor  | |  Order    |
-            | (Products,  |   |  Agent    | |  Agent   | |  Agent    |
-            |  Orders,    |   | :8001     | | :8002    | | :8003     |
-            |  Users)     |   +-----+-----+ +----+-----+ +----+------+
-            +-------------+         |            |             |
-                                +---v---+   +----v----+   +---v---+
-                                | Qdrant|   |  Redis  |   | MySQL |
-                                | Vector|   | (Chat   |   | (Order|
-                                |  DB   |   | Memory) |   | Query)|
-                                +-------+   +---------+   +-------+
-```
+<p align="center">
+  <img src="./assets/multi_architecture.png" alt="Overall Architecture" width="800">
+  <br>
+  <em>Hình 1: Kiến trúc tổng thể của hệ thống Multi-Agent Tech Store.</em>
+</p>
 
 ### Multi-Agent Communication Flow
 
@@ -55,6 +32,54 @@ Host Agent (Intent Classification via GPT-4o-mini)
      |
      +---> intent: "default" ---> Advisor Agent (General conversation)
 ```
+
+<p align="center">
+  <strong>Giao diện Trang chủ (Storefront)</strong>
+  <br>
+  <img src="./assets/muilti1.png" alt="Homepage" width="800">
+  <br>
+  <em>Hình 2: Giao diện trang chủ hệ thống PinkCapy Tech Store.</em>
+</p>
+
+<br>
+
+<p align="center">
+  <strong>Tìm kiếm sản phẩm bằng hình ảnh (Visual Search)</strong>
+  <br>
+  <img src="./assets/multi2.png" alt="Visual Search" width="800">
+  <br>
+  <em>Hình 3: Tính năng tìm kiếm sản phẩm thông minh qua hình ảnh.</em>
+</p>
+
+<br>
+
+<p align="center">
+  <strong>Trợ lý AI tư vấn kỹ thuật (AI Advisor)</strong>
+  <br>
+  <img src="./assets/multi3.png" alt="AI Advisor" width="800">
+  <br>
+  <em>Hình 4: Trợ lý AI phân tích và gợi ý sản phẩm dựa trên độ tương đồng.</em>
+</p>
+
+<br>
+
+<p align="center">
+  <strong>Hỗ trợ Giỏ hàng thông minh (Smart Cart)</strong>
+  <br>
+  <img src="./assets/multi4.png" alt="Smart Cart" width="800">
+  <br>
+  <em>Hình 5: Hỗ trợ kiểm tra giỏ hàng và tư vấn mua sắm trực tiếp qua chatbot.</em>
+</p>
+
+<br>
+
+<p align="center">
+  <strong>Quản lý và Hủy đơn hàng (Order Management)</strong>
+  <br>
+  <img src="./assets/multi6.png" alt="Order Management" width="800">
+  <br>
+  <em>Hình 6: Thực hiện quản lý đơn hàng (hủy đơn) thông qua giao tiếp tự nhiên với Order Agent.</em>
+</p>
 
 ---
 
