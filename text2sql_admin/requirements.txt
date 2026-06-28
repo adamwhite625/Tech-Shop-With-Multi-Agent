@@ -1,0 +1,7 @@
+huggingface_hub
+openai
+pandas
+fastapi
+uvicorn[standard]
+python-multipart
+httpx

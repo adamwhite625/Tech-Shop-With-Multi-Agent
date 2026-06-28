@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.py[cod]
+
+# Virtual environment
+venv/
+.venv/
+
+# Environment variables
+.env
+
+# Model files (too large — use download_model.py to fetch)
+*.gguf
+model-12k/
+distil-model/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+Thumbs.db
+Desktop.ini
+
+# Uploads
+uploads/
+
+# Node / Frontend
+frontend/node_modules/
+frontend/.next/
