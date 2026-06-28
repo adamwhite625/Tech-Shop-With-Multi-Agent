@@ -1,0 +1,35 @@
+# Git
+.git/
+.gitignore
+
+# Model files (too large for Docker context)
+model-12k/
+*.gguf
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+
+# Frontend (has its own Dockerfile)
+frontend/
+
+# Notebooks
+notebooks/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+Thumbs.db
+Desktop.ini
+
+# Uploads
+uploads/
+
+# Misc
+.env
+*.md

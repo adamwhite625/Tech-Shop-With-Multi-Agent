@@ -1,0 +1,56 @@
+version: "3.8"
+
+services:
+  # ---- Ollama (LLM Server) ----
+  ollama:
+    image: ollama/ollama:latest
+    container_name: text2sql-ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    restart: unless-stopped
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+
+  # ---- FastAPI Backend ----
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: text2sql-api
+    ports:
+      - "8000:8000"
+    environment:
+      - OLLAMA_HOST=ollama
+      - OLLAMA_PORT=11434
+      - MODEL_NAME=text2sql-12k
+      - API_KEY=EMPTY
+    depends_on:
+      - ollama
+    volumes:
+      - uploads_data:/app/uploads
+    restart: unless-stopped
+
+  # ---- Next.js Frontend ----
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        - NEXT_PUBLIC_API_URL=http://localhost:8000
+    container_name: text2sql-frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api
+    restart: unless-stopped
+
+volumes:
+  ollama_data:
+  uploads_data:

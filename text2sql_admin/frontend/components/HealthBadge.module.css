@@ -1,0 +1,113 @@
+.wrapper {
+  position: relative;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-subtle);
+  border-radius: 100px;
+  color: var(--text-secondary);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.badge:hover {
+  border-color: var(--border-accent);
+  color: var(--text-primary);
+  box-shadow: var(--shadow-sm);
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.dotOnline {
+  background: var(--success);
+  box-shadow: 0 0 6px rgba(22, 163, 74, 0.4);
+  animation: pulse-glow-green 2s ease-in-out infinite;
+}
+
+.dotWarning {
+  background: var(--warning);
+  box-shadow: 0 0 6px rgba(217, 119, 6, 0.4);
+}
+
+.dotOffline {
+  background: var(--error);
+  box-shadow: 0 0 6px rgba(220, 38, 38, 0.4);
+}
+
+.dotChecking {
+  background: var(--text-muted);
+  animation: pulse-glow-gray 1s ease-in-out infinite;
+}
+
+.label {
+  white-space: nowrap;
+}
+
+/* Tooltip */
+.tooltip {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 12px;
+  min-width: 220px;
+  box-shadow: var(--shadow-lg);
+  z-index: 50;
+  animation: fadeIn 0.2s ease-out;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--transition-fast);
+}
+
+.wrapper:hover .tooltip {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.tooltipRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 0;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.tooltipRow + .tooltipRow {
+  border-top: 1px solid var(--border-subtle);
+  margin-top: 4px;
+  padding-top: 8px;
+}
+
+.ok {
+  color: var(--success);
+}
+
+.fail {
+  color: var(--error);
+}
+
+@keyframes pulse-glow-green {
+  0%, 100% { box-shadow: 0 0 4px rgba(22, 163, 74, 0.2); }
+  50% { box-shadow: 0 0 10px rgba(22, 163, 74, 0.5); }
+}
+
+@keyframes pulse-glow-gray {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
+}

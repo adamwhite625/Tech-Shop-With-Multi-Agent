@@ -111,3 +111,13 @@ build/
 
 # Local documentation
 docs/
+
+# AI assistant context
+claude.md
+
+# Text2SQL Admin
+text2sql_admin/uploads/
+text2sql_admin/model-12k/
+text2sql_admin/*.gguf
+text2sql_admin/notebooks/.ipynb_checkpoints/
+text2sql_admin/demo/

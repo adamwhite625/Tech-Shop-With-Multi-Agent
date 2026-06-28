@@ -1,0 +1,162 @@
+[
+  {
+    "id": "gold_01",
+    "difficulty": "easy",
+    "db_id": "employees",
+    "schema": "CREATE TABLE employees (id int, name text, salary int, department text);",
+    "question": "What are the names of employees in the 'Sales' department?",
+    "expected_sql": "SELECT name FROM employees WHERE department = 'Sales'"
+  },
+  {
+    "id": "gold_02",
+    "difficulty": "easy",
+    "db_id": "employees",
+    "schema": "CREATE TABLE employees (id int, name text, salary int, department text);",
+    "question": "How many employees earn more than 50000?",
+    "expected_sql": "SELECT COUNT(*) FROM employees WHERE salary > 50000"
+  },
+  {
+    "id": "gold_03",
+    "difficulty": "easy",
+    "db_id": "projects",
+    "schema": "CREATE TABLE projects (id int, name text, budget int, status text);",
+    "question": "List all project names with a budget over 100000.",
+    "expected_sql": "SELECT name FROM projects WHERE budget > 100000"
+  },
+  {
+    "id": "gold_04",
+    "difficulty": "easy",
+    "db_id": "projects",
+    "schema": "CREATE TABLE projects (id int, name text, budget int, status text);",
+    "question": "Show the status of the 'Website Redesign' project.",
+    "expected_sql": "SELECT status FROM projects WHERE name = 'Website Redesign'"
+  },
+  {
+    "id": "gold_05",
+    "difficulty": "easy",
+    "db_id": "employees",
+    "schema": "CREATE TABLE employees (id int, name text, salary int, department text);",
+    "question": "Show the average salary of all employees.",
+    "expected_sql": "SELECT AVG(salary) FROM employees"
+  },
+  {
+    "id": "gold_06",
+    "difficulty": "medium",
+    "db_id": "hospital",
+    "schema": "CREATE TABLE doctors (id int, name text, dept_id int); CREATE TABLE departments (id int, name text);",
+    "question": "List each department name and the number of doctors working there.",
+    "expected_sql": "SELECT T2.name, COUNT(T1.id) FROM doctors AS T1 JOIN departments AS T2 ON T1.dept_id = T2.id GROUP BY T2.name"
+  },
+  {
+    "id": "gold_07",
+    "difficulty": "medium",
+    "db_id": "hospital",
+    "schema": "CREATE TABLE patients (id int, name text); CREATE TABLE appointments (id int, patient_id int, date text);",
+    "question": "Show the names of patients who have more than 2 appointments.",
+    "expected_sql": "SELECT T1.name FROM patients AS T1 JOIN appointments AS T2 ON T1.id = T2.patient_id GROUP BY T1.name HAVING COUNT(T2.id) > 2"
+  },
+  {
+    "id": "gold_08",
+    "difficulty": "medium",
+    "db_id": "concert_singer",
+    "schema": "CREATE TABLE singer (id int, name text, age int); CREATE TABLE concert (id int, name text, year int); CREATE TABLE singer_in_concert (singer_id int, concert_id int);",
+    "question": "Find the names of singers who have performed in at least 2 concerts.",
+    "expected_sql": "SELECT T1.name FROM singer AS T1 JOIN singer_in_concert AS T2 ON T1.id = T2.singer_id GROUP BY T1.name HAVING COUNT(T2.concert_id) >= 2"
+  },
+  {
+    "id": "gold_09",
+    "difficulty": "medium",
+    "db_id": "car_1",
+    "schema": "CREATE TABLE car_makers (id int, maker text); CREATE TABLE model_list (model_id int, maker int, model text);",
+    "question": "Show all car makers and the count of models they produce.",
+    "expected_sql": "SELECT T1.maker, COUNT(T2.model_id) FROM car_makers AS T1 JOIN model_list AS T2 ON T1.id = T2.maker GROUP BY T1.maker"
+  },
+  {
+    "id": "gold_10",
+    "difficulty": "medium",
+    "db_id": "flight_2",
+    "schema": "CREATE TABLE airlines (id int, name text); CREATE TABLE flights (id int, airline int, source text);",
+    "question": "Show the name of the airline that has the most flights starting from 'JFK'.",
+    "expected_sql": "SELECT T1.name FROM airlines AS T1 JOIN flights AS T2 ON T1.id = T2.airline WHERE T2.source = 'JFK' GROUP BY T1.name ORDER BY COUNT(*) DESC LIMIT 1"
+  },
+  {
+    "id": "gold_11",
+    "difficulty": "medium",
+    "db_id": "employees",
+    "schema": "CREATE TABLE employees (id int, name text, salary int, dept_id int); CREATE TABLE departments (id int, name text, budget int);",
+    "question": "Find the names of employees working in departments with a budget greater than 500000.",
+    "expected_sql": "SELECT T1.name FROM employees AS T1 JOIN departments AS T2 ON T1.dept_id = T2.id WHERE T2.budget > 500000"
+  },
+  {
+    "id": "gold_12",
+    "difficulty": "medium",
+    "db_id": "store",
+    "schema": "CREATE TABLE products (id int, name text, price int); CREATE TABLE sales (id int, product_id int, quantity int);",
+    "question": "What is the total revenue generate by the product 'iPhone'?",
+    "expected_sql": "SELECT SUM(T1.price * T2.quantity) FROM products AS T1 JOIN sales AS T2 ON T1.id = T2.product_id WHERE T1.name = 'iPhone'"
+  },
+  {
+    "id": "gold_13",
+    "difficulty": "medium",
+    "db_id": "school",
+    "schema": "CREATE TABLE students (id int, name text); CREATE TABLE grades (student_id int, course_id int, grade int);",
+    "question": "List students who have an average grade above 85.",
+    "expected_sql": "SELECT T1.name FROM students AS T1 JOIN grades AS T2 ON T1.id = T2.student_id GROUP BY T1.name HAVING AVG(T2.grade) > 85"
+  },
+  {
+    "id": "gold_14",
+    "difficulty": "medium",
+    "db_id": "library",
+    "schema": "CREATE TABLE books (id int, title text, author_id int); CREATE TABLE authors (id int, name text);",
+    "question": "How many books has each author written? List author name and count.",
+    "expected_sql": "SELECT T2.name, COUNT(T1.id) FROM books AS T1 JOIN authors AS T2 ON T1.author_id = T2.id GROUP BY T2.name"
+  },
+  {
+    "id": "gold_15",
+    "difficulty": "medium",
+    "db_id": "bank",
+    "schema": "CREATE TABLE customers (id int, name text); CREATE TABLE accounts (id int, customer_id int, balance int);",
+    "question": "Find customers who have a total balance across all accounts greater than 10000.",
+    "expected_sql": "SELECT T1.name FROM customers AS T1 JOIN accounts AS T2 ON T1.id = T2.customer_id GROUP BY T1.name HAVING SUM(T2.balance) > 10000"
+  },
+  {
+    "id": "gold_16",
+    "difficulty": "hard",
+    "db_id": "concert_singer",
+    "schema": "CREATE TABLE singer (id int, name text); CREATE TABLE concert (id int, name text, year int); CREATE TABLE singer_in_concert (singer_id int, concert_id int);",
+    "question": "List the names of singers who have performed in both 2024 and 2025 concerts.",
+    "expected_sql": "SELECT T1.name FROM singer AS T1 JOIN singer_in_concert AS T2 ON T1.id = T2.singer_id JOIN concert AS T3 ON T2.concert_id = T3.id WHERE T3.year = 2024 INTERSECT SELECT T1.name FROM singer AS T1 JOIN singer_in_concert AS T2 ON T1.id = T2.singer_id JOIN concert AS T3 ON T2.concert_id = T3.id WHERE T3.year = 2025"
+  },
+  {
+    "id": "gold_17",
+    "difficulty": "hard",
+    "db_id": "hospital",
+    "schema": "CREATE TABLE physician (id int, name text); CREATE TABLE department (id int, name text, head int);",
+    "question": "What are the names of physicians who are not heads of any department?",
+    "expected_sql": "SELECT name FROM physician WHERE id NOT IN (SELECT head FROM department)"
+  },
+  {
+    "id": "gold_18",
+    "difficulty": "hard",
+    "db_id": "car_1",
+    "schema": "CREATE TABLE model_list (model_id int, maker int, model text); CREATE TABLE car_makers (id int, maker text, country int); CREATE TABLE countries (id int, continent int);",
+    "question": "List the models of cars produced by makers whose countries are in continent 1.",
+    "expected_sql": "SELECT T1.model FROM model_list AS T1 JOIN car_makers AS T2 ON T1.maker = T2.id JOIN countries AS T3 ON T2.country = T3.id WHERE T3.continent = 1"
+  },
+  {
+    "id": "gold_19",
+    "difficulty": "hard",
+    "db_id": "flight_2",
+    "schema": "CREATE TABLE airlines (id int, name text, country text); CREATE TABLE flights (id int, airline int, source text, dest text);",
+    "question": "Show airline names that have flights from 'JFK' but NO flights to 'LAX'.",
+    "expected_sql": "SELECT T1.name FROM airlines AS T1 JOIN flights AS T2 ON T1.id = T2.airline WHERE T2.source = 'JFK' EXCEPT SELECT T1.name FROM airlines AS T1 JOIN flights AS T3 ON T1.id = T3.airline WHERE T3.dest = 'LAX'"
+  },
+  {
+    "id": "gold_20",
+    "difficulty": "hard",
+    "db_id": "college_2",
+    "schema": "CREATE TABLE instructor (id int, name text, dept_name text); CREATE TABLE department (dept_name text, budget int);",
+    "question": "Find the names of all instructors who work in a department with a budget higher than the average department budget.",
+    "expected_sql": "SELECT name FROM instructor WHERE dept_name IN (SELECT dept_name FROM department WHERE budget > (SELECT AVG(budget) FROM department))"
+  }
+]
