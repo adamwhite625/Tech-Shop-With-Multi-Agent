@@ -5,3 +5,5 @@ fastapi
 uvicorn[standard]
 python-multipart
 httpx
+pymysql
+python-dotenv

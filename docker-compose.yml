@@ -164,6 +164,56 @@ services:
       timeout: 10s
       retries: 3
 
+  # =====================================================
+  # 3. Text2SQL Admin Services
+  # =====================================================
+
+  # Text2SQL Admin Backend — Natural language query interface for admin
+  text2sql_api:
+    build: ./text2sql_admin
+    container_name: tech_text2sql_api
+    restart: always
+    ports:
+      - "8010:8010"
+    environment:
+      - OLLAMA_HOST=host.docker.internal
+      - OLLAMA_PORT=11434
+      - MODEL_NAME=hf.co/adamwhite625/gemma-2-2b-text2sql-v3-spider-augmented
+      - API_KEY=EMPTY
+      - MYSQL_HOST=mysql_db
+      - MYSQL_PORT=3306
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=root
+      - MYSQL_DATABASE=tech_store_db
+    depends_on:
+      mysql_db:
+        condition: service_healthy
+    volumes:
+      - text2sql_uploads:/app/uploads
+    networks:
+      - tech_network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8010/api/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Text2SQL Admin Frontend — Next.js admin dashboard
+  text2sql_frontend:
+    build:
+      context: ./text2sql_admin/frontend
+      dockerfile: Dockerfile
+      args:
+        - NEXT_PUBLIC_API_URL=http://localhost:8010
+    container_name: tech_text2sql_frontend
+    restart: always
+    ports:
+      - "3001:3000"
+    depends_on:
+      - text2sql_api
+    networks:
+      - tech_network
+
 # =====================================================
 # Networks & Volumes
 # =====================================================
@@ -175,3 +225,5 @@ volumes:
   tech_mysql_data:
   tech_qdrant_data:
   tech_redis_data:
+  text2sql_uploads:
+

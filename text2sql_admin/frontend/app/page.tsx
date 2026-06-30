@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { apiClient, TableInfo, QueryResult } from "@/lib/api";
 import { addToHistory, HistoryEntry } from "@/components/QueryHistory";
 import HealthBadge from "@/components/HealthBadge";
@@ -18,14 +18,26 @@ export default function Home() {
   const [querying, setQuerying] = useState(false);
   const [result, setResult] = useState<QueryResult | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [querySource, setQuerySource] = useState<"mysql" | "csv">("mysql");
 
-  // --- Upload ---
+  // Auto-load tables from both MySQL and CSV on mount
+  useEffect(() => {
+    apiClient
+      .listTables()
+      .then((res) => setTables(res.tables))
+      .catch(() => {});
+  }, []);
+
+  // Derived counts for display
+  const mysqlTables = tables.filter((t) => t.source === "mysql");
+  const csvTables = tables.filter((t) => t.source === "csv");
+
+  // --- Upload CSV ---
   const handleUpload = useCallback(async (files: File[]) => {
     setUploading(true);
     setError(null);
     try {
-      const res = await apiClient.uploadFiles(files);
-      // Refresh table list
+      await apiClient.uploadFiles(files);
       const tablesRes = await apiClient.listTables();
       setTables(tablesRes.tables);
     } catch (e: any) {
@@ -35,7 +47,7 @@ export default function Home() {
     }
   }, []);
 
-  // --- Delete table ---
+  // --- Delete table (CSV only) ---
   const handleDelete = useCallback(async (name: string) => {
     setError(null);
     try {
@@ -46,41 +58,63 @@ export default function Home() {
     }
   }, []);
 
-  // --- Query ---
-  const handleQuery = useCallback(async (question: string) => {
-    setQuerying(true);
+  // --- Refresh MySQL schemas ---
+  const handleRefresh = useCallback(async () => {
     setError(null);
-    setResult(null);
     try {
-      const res = await apiClient.query(question);
-      setResult(res);
-      // Save to history
-      addToHistory({
-        question,
-        sql: res.sql,
-        rowCount: res.row_count,
-        timestamp: Date.now(),
-      });
-      // Notify history component
-      window.dispatchEvent(new Event("text2sql:history-updated"));
+      await apiClient.refreshMysqlTables();
+      const tablesRes = await apiClient.listTables();
+      setTables(tablesRes.tables);
     } catch (e: any) {
-      setError(e.message || "Query failed");
-    } finally {
-      setQuerying(false);
+      setError(e.message || "Refresh failed");
     }
   }, []);
 
+  // --- Query ---
+  const handleQuery = useCallback(
+    async (question: string) => {
+      setQuerying(true);
+      setError(null);
+      setResult(null);
+      try {
+        const res = await apiClient.query(question, querySource);
+        setResult(res);
+        addToHistory({
+          question,
+          sql: res.sql,
+          rowCount: res.row_count,
+          timestamp: Date.now(),
+        });
+        window.dispatchEvent(new Event("text2sql:history-updated"));
+      } catch (e: any) {
+        setError(e.message || "Query failed");
+      } finally {
+        setQuerying(false);
+      }
+    },
+    [querySource]
+  );
+
   // --- History replay ---
-  const handleHistorySelect = useCallback((entry: HistoryEntry) => {
-    setResult({
-      sql: entry.sql,
-      columns: [],
-      rows: [],
-      row_count: entry.rowCount,
-    });
-    // Re-run the query to get fresh results
-    handleQuery(entry.question);
-  }, [handleQuery]);
+  const handleHistorySelect = useCallback(
+    (entry: HistoryEntry) => {
+      setResult({
+        sql: entry.sql,
+        columns: [],
+        rows: [],
+        row_count: entry.rowCount,
+        source: querySource,
+      });
+      handleQuery(entry.question);
+    },
+    [handleQuery, querySource]
+  );
+
+  // Check if querying is possible given current source
+  const canQuery =
+    querySource === "mysql"
+      ? mysqlTables.length > 0
+      : csvTables.length > 0;
 
   return (
     <div className={styles.container}>
@@ -101,10 +135,10 @@ export default function Home() {
             </svg>
             <div>
               <h1 className={styles.title}>
-                Text<span className="text-gradient">2</span>SQL
+                Tech Shop <span className="text-gradient">Admin</span>
               </h1>
               <p className={styles.subtitle}>
-                Natural language queries on your data
+                Natural language queries on your database
               </p>
             </div>
           </div>
@@ -116,21 +150,55 @@ export default function Home() {
 
       {/* Main content */}
       <main className={styles.main}>
-        {/* Left panel — Data */}
+        {/* Left panel */}
         <aside className={styles.sidebar}>
+          {/* Source selector */}
           <div className={`glass-card ${styles.card}`}>
             <h2 className={styles.cardTitle}>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                <polyline points="14 2 14 8 20 8" />
-                <line x1="16" y1="13" x2="8" y2="13" />
-                <line x1="16" y1="17" x2="8" y2="17" />
+                <ellipse cx="12" cy="5" rx="9" ry="3" />
+                <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3" />
+                <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5" />
               </svg>
-              Data Sources
+              Data Source
             </h2>
-            <FileUpload onUpload={handleUpload} uploading={uploading} />
+            <div style={{ display: "flex", gap: "8px", marginBottom: "12px" }}>
+              <button
+                className={`btn ${querySource === "mysql" ? "btn-primary" : "btn-ghost"} btn-sm`}
+                onClick={() => setQuerySource("mysql")}
+              >
+                MySQL ({mysqlTables.length})
+              </button>
+              <button
+                className={`btn ${querySource === "csv" ? "btn-primary" : "btn-ghost"} btn-sm`}
+                onClick={() => setQuerySource("csv")}
+              >
+                CSV ({csvTables.length})
+              </button>
+            </div>
+
+            {/* Refresh button for MySQL */}
+            {querySource === "mysql" && (
+              <button
+                className="btn btn-ghost btn-sm"
+                onClick={handleRefresh}
+                style={{ width: "100%", marginBottom: "12px" }}
+              >
+                Refresh MySQL Schema
+              </button>
+            )}
+
+            {/* CSV upload (only show when CSV source is selected) */}
+            {querySource === "csv" && (
+              <FileUpload onUpload={handleUpload} uploading={uploading} />
+            )}
+
+            {/* Table list for active source */}
             <div className={styles.tableSection}>
-              <TableList tables={tables} onDelete={handleDelete} />
+              <TableList
+                tables={querySource === "mysql" ? mysqlTables : csvTables}
+                onDelete={handleDelete}
+              />
             </div>
           </div>
 
@@ -148,11 +216,14 @@ export default function Home() {
                 <line x1="21" y1="21" x2="16.65" y2="16.65" />
               </svg>
               Ask a Question
+              <span className="badge badge-info" style={{ marginLeft: "auto", fontSize: "0.7rem" }}>
+                {querySource.toUpperCase()}
+              </span>
             </h2>
             <QueryInput
               onSubmit={handleQuery}
               loading={querying}
-              disabled={tables.length === 0}
+              disabled={!canQuery}
             />
           </div>
 
@@ -173,7 +244,7 @@ export default function Home() {
                   className={`btn btn-ghost btn-sm ${styles.errorDismiss}`}
                   onClick={() => setError(null)}
                 >
-                  ✕
+                  x
                 </button>
               </div>
             </div>
@@ -202,9 +273,9 @@ export default function Home() {
             <div className={`glass-card ${styles.card} ${styles.loadingCard}`}>
               <div className="spinner spinner-lg" />
               <div>
-                <div className={styles.loadingTitle}>Generating SQL…</div>
+                <div className={styles.loadingTitle}>Generating SQL...</div>
                 <div className={styles.loadingText}>
-                  The model is analyzing your question and schema
+                  The model is analyzing your question and {querySource === "mysql" ? "database" : "CSV"} schema
                 </div>
               </div>
             </div>
@@ -221,23 +292,25 @@ export default function Home() {
               </div>
               <h3 className={styles.emptyTitle}>Ready to Query</h3>
               <p className={styles.emptyText}>
-                {tables.length === 0
-                  ? "Upload CSV files to get started. Each file becomes a queryable table."
-                  : "Type a natural language question about your data and press Enter."}
+                {canQuery
+                  ? `Type a question in natural language to query ${querySource === "mysql" ? "the Tech Shop database" : "your CSV data"}.`
+                  : querySource === "mysql"
+                  ? "Cannot connect to MySQL. Check if the database is running."
+                  : "Upload CSV files to get started. Each file becomes a queryable table."}
               </p>
-              {tables.length === 0 && (
+              {canQuery && (
                 <div className={styles.emptySteps}>
                   <div className={styles.step}>
                     <span className={styles.stepNum}>1</span>
-                    <span>Upload CSV files</span>
+                    <span>Type a question (Vietnamese or English)</span>
                   </div>
                   <div className={styles.step}>
                     <span className={styles.stepNum}>2</span>
-                    <span>Ask a question in natural language</span>
+                    <span>AI generates SQL from your question</span>
                   </div>
                   <div className={styles.step}>
                     <span className={styles.stepNum}>3</span>
-                    <span>Get SQL + results instantly</span>
+                    <span>See the results instantly</span>
                   </div>
                 </div>
               )}
