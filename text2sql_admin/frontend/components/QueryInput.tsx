@@ -42,8 +42,8 @@ export default function QueryInput({ onSubmit, loading, disabled }: Props) {
           className={`textarea ${styles.textarea}`}
           placeholder={
             disabled
-              ? "Upload CSV files first to start querying…"
-              : "Ask a question about your data… (e.g., What is the average salary by department?)"
+              ? "Waiting for data source connection…"
+              : "Ask a question about your data… (e.g., Show me the top 10 most expensive products)"
           }
           value={question}
           onChange={(e) => setQuestion(e.target.value)}

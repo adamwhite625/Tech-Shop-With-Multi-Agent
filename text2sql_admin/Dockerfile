@@ -1,4 +1,4 @@
-# ---- Backend (FastAPI) ----
+# ---- Text2SQL Admin Backend (FastAPI) ----
 FROM python:3.11-slim
 
 WORKDIR /app
@@ -17,6 +17,6 @@ COPY example_data/ ./example_data/
 # Create uploads directory
 RUN mkdir -p /app/uploads
 
-EXPOSE 8000
+EXPOSE 8010
 
-CMD ["uvicorn", "api:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "api:app", "--host", "0.0.0.0", "--port", "8010"]

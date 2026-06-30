@@ -28,6 +28,7 @@ export default function HealthBadge() {
 
   const isOnline = health?.ollama === true;
   const modelReady = health?.model_loaded === true;
+  const mysqlOk = health?.mysql_connected === true;
 
   return (
     <div className={styles.wrapper}>
@@ -36,7 +37,7 @@ export default function HealthBadge() {
           className={`${styles.dot} ${
             checking
               ? styles.dotChecking
-              : isOnline && modelReady
+              : isOnline && modelReady && mysqlOk
               ? styles.dotOnline
               : isOnline
               ? styles.dotWarning
@@ -45,9 +46,11 @@ export default function HealthBadge() {
         />
         <span className={styles.label}>
           {checking
-            ? "Checking…"
-            : isOnline && modelReady
-            ? "Model Ready"
+            ? "Checking..."
+            : isOnline && modelReady && mysqlOk
+            ? "All Systems Ready"
+            : isOnline && !mysqlOk
+            ? "MySQL Offline"
             : isOnline
             ? "Model Not Loaded"
             : "Ollama Offline"}
@@ -68,8 +71,14 @@ export default function HealthBadge() {
             </span>
           </div>
           <div className={styles.tooltipRow}>
-            <span>Tables</span>
-            <span>{health.tables_loaded}</span>
+            <span>MySQL</span>
+            <span className={mysqlOk ? styles.ok : styles.fail}>
+              {mysqlOk ? `Connected (${health.mysql_tables})` : "Disconnected"}
+            </span>
+          </div>
+          <div className={styles.tooltipRow}>
+            <span>CSV Tables</span>
+            <span>{health.csv_tables}</span>
           </div>
         </div>
       )}
