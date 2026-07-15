@@ -8,8 +8,8 @@ from qdrant_client import QdrantClient
 from qdrant_client.http import models
 from sentence_transformers import SentenceTransformer
 
-# Cấu hình
-CSV_PATH = "data/products_valid.csv"
+# Configuration
+CSV_PATH = "../data/products_valid.csv"
 QDRANT_URL = "http://localhost:6333"
 COLLECTION_NAME = "tech_products_images"
 
@@ -17,6 +17,7 @@ COLLECTION_NAME = "tech_products_images"
 BASE_IMAGE_URL = "https://cdn2.cellphones.com.vn/insecure/rs:fill:300:300/q:90/plain/https://cellphones.com.vn/media/catalog/product" 
 
 def main():
+    # Process product images, generate CLIP embeddings, and ingest them into Qdrant.
     print("1. Đang khởi tạo Qdrant Client và load model CLIP (có thể mất chút thời gian)...")
     qdrant = QdrantClient(url=QDRANT_URL)
     clip_model = SentenceTransformer('clip-ViT-B-32')

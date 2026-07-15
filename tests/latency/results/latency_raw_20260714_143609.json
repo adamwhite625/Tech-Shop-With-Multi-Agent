@@ -1,0 +1,255 @@
+{
+  "results": [
+    {
+      "question_id": "Q01",
+      "category": "action_camera",
+      "question": "Tìm camera hành trình GoPro Hero 13",
+      "session_id": "benchmark_Q01_1784014475",
+      "stage_latencies_s": {
+        "retrieval": 0.0823,
+        "advisor_total": 7.9197,
+        "llm_generation_est": 7.8374,
+        "e2e_via_host": 1.4612,
+        "intent_classification_est": 0
+      },
+      "e2e_latency_s": 1.4612,
+      "search_results_count": 3,
+      "advisor_answer": "Chúng tôi có hai sản phẩm camera hành trình GoPro Hero 13. Dưới đây là thông tin chi tiết:\n\n1. **Camera hành trình GoPro Hero 13 Black**\n   - Giá: 11.490.000 VND\n   - [Xem chi tiết sản phẩm](https://pinkcapy.com/camera-hanh-trinh-gopro-hero-13-black)\n\n2. **Camera hành trình GoPro Hero 13 Creator Edition Black**\n   - Giá: 16.990.000 VND\n   - [Xem chi tiết sản phẩm](https://pinkcapy.com/camera-hanh-trinh-gopro-hero-13-creator-edition-black)\n\nNếu bạn cần thêm thông tin hoặc có câu hỏi nào khác, xin vui lòng cho tôi biết!",
+      "referenced_products": "- Tên: Camera hành trình GoPro Hero 13 Black\n  Giá: 11490000.0 VND\n  Đường dẫn: /camera-hanh-trinh-gopro-hero-13-black\n\n- Tên: Camera GoPro Hero 12 Creator Edition\n  Giá: 17490000.0 VND\n  Đường dẫn: /camera-hanh-trinh-gopro-hero-12-creator-edition\n\n- Tên: Camera hành trình GoPro Hero 13 Creator Edition Black\n  Giá: 16990000.0 VND\n  Đường dẫn: /camera-hanh-trinh-gopro-hero-13-creator-edition-black\n\n",
+      "routed_agent": "search",
+      "error": null
+    },
+    {
+      "question_id": "Q02",
+      "category": "ip_camera",
+      "question": "Tư vấn mua camera IP WiFi Ezviz 360 độ trong nhà",
+      "session_id": "benchmark_Q02_1784014485",
+      "stage_latencies_s": {
+        "retrieval": 0.3118,
+        "advisor_total": 5.823,
+        "llm_generation_est": 5.5112,
+        "e2e_via_host": 9.1006,
+        "intent_classification_est": 3.2776
+      },
+      "e2e_latency_s": 9.1006,
+      "search_results_count": 3,
+      "advisor_answer": "Xin chào quý khách! Hiện tại, chúng tôi không có sản phẩm camera IP WiFi Ezviz 360 độ dành riêng cho trong nhà. Tuy nhiên, tôi có thể giới thiệu cho quý khách một số sản phẩm camera IP có khả năng quay quét 360 độ mà có thể phù hợp với nhu cầu của quý khách.\n\n1. **Camera IP WiFi Ezviz C6N Pro 2K 3MP quay quét 360 độ**\n   - Giá: 610.000 VND\n   - Đường dẫn: [Xem sản phẩm](https://pinkcapy.com/camera-ip-hong-ngoai-khong-day-ezviz-c6n-3mp)\n\nSản phẩm này có khả năng quay quét 360 độ và độ phân giải 3MP, rất thích hợp cho việc giám sát trong nhà. Nếu quý khách cần thêm thông tin hoặc có nhu cầu khác, xin vui lòng cho tôi biết!",
+      "referenced_products": "- Tên: Camera IP ngoài trời 360 độ 8MP Ezviz H90 Dual\n  Giá: 2280000.0 VND\n  Đường dẫn: /camera-ip-wifi-ngoai-troi-8mp-ezviz-h90-dual\n\n- Tên: Camera IP WiFi Ezviz C6N Pro 2K 3MP quay quét 360 độ\n  Giá: 610000.0 VND\n  Đường dẫn: /camera-ip-hong-ngoai-khong-day-ezviz-c6n-3mp\n\n- Tên: Camera IP ngoài trời 360 độ 10MP EZVIZ H80X Dual\n  Giá: 2340000.0 VND\n  Đường dẫn: /camera-ip-wifi-ngoai-troi-10mp-ezviz-h80x-dual\n\n",
+      "routed_agent": "advisor",
+      "error": null
+    },
+    {
+      "question_id": "Q03",
+      "category": "gimbal",
+      "question": "Tay cầm chống rung Gimbal DJI OM 6 có tốt không?",
+      "session_id": "benchmark_Q03_1784014500",
+      "stage_latencies_s": {
+        "retrieval": 0.3816,
+        "advisor_total": 7.7332,
+        "llm_generation_est": 7.3516,
+        "e2e_via_host": 7.1554,
+        "intent_classification_est": 0
+      },
+      "e2e_latency_s": 7.1554,
+      "search_results_count": 3,
+      "advisor_answer": "Gimbal DJI OM 6 là một sản phẩm rất chất lượng và được nhiều người dùng đánh giá cao. Với thiết kế nhỏ gọn, dễ dàng mang theo, sản phẩm này giúp bạn ghi lại những khoảnh khắc một cách mượt mà và ổn định, ngay cả khi di chuyển.\n\nMột số tính năng nổi bật của Gimbal DJI OM 6 bao gồm:\n- Công nghệ chống rung tiên tiến, giúp giảm thiểu rung lắc khi quay video.\n- Khả năng điều khiển dễ dàng qua ứng dụng, cho phép bạn tạo ra các video chuyên nghiệp hơn.\n- Thời lượng pin tốt, cho phép bạn sử dụng lâu dài trong một ngày quay phim.\n\nVới mức giá 3.690.000 VND, đây là một sự đầu tư hợp lý cho những ai đam mê quay phim và muốn nâng cao chất lượng video của mình. Nếu bạn cần thêm thông tin hoặc muốn xem chi tiết sản phẩm, bạn có thể tham khảo tại [đây](https://pinkcapy.com/tay-cam-chong-rung-dji-om-6).",
+      "referenced_products": "- Tên: Gimbal Hohem XE \n  Giá: 2100000.0 VND\n  Đường dẫn: /tay-cam-chong-rung-hohem-xe\n\n- Tên: Gimbal DJI OM 6\n  Giá: 3690000.0 VND\n  Đường dẫn: /tay-cam-chong-rung-dji-om-6\n\n- Tên: Tay cầm chống rung máy ảnh DJI Ronin RS4 mini\n  Giá: 6900000.0 VND\n  Đường dẫn: /tay-cam-chong-rung-may-anh-dji-ronin-rs4-mini\n\n",
+      "routed_agent": "advisor",
+      "error": null
+    },
+    {
+      "question_id": "Q04",
+      "category": "car_accessory",
+      "question": "Bộ HUD kính lái VIETMAP hiển thị thông tin gì?",
+      "session_id": "benchmark_Q04_1784014515",
+      "stage_latencies_s": {
+        "retrieval": 0.3128,
+        "advisor_total": 3.3398,
+        "llm_generation_est": 3.027,
+        "e2e_via_host": 6.2294,
+        "intent_classification_est": 2.8896
+      },
+      "e2e_latency_s": 6.2294,
+      "search_results_count": 3,
+      "advisor_answer": "Bộ HUD kính lái VIETMAP thường hiển thị các thông tin quan trọng như tốc độ xe, chỉ dẫn đường, thông tin về tình trạng xe, và các cảnh báo an toàn. Điều này giúp người lái dễ dàng theo dõi các thông tin cần thiết mà không cần phải nhìn xuống bảng điều khiển, từ đó tăng cường sự an toàn khi lái xe. Nếu bạn cần thêm thông tin về sản phẩm cụ thể, xin vui lòng cho tôi biết!",
+      "referenced_products": "- Tên: Bộ HUD VIETMAP H1AS màn hình kính lái cảm biến thông minh\n  Giá: 4490000.0 VND\n  Đường dẫn: /bo-hud-kinh-lai-vietmap-h1as-cam-bien-ngoai\n\n- Tên: Bộ HUD kính lái VIETMAP H1AS (không kèm van áp suất lốp)\n  Giá: 2490000.0 VND\n  Đường dẫn: /bo-hud-kinh-lai-vietmap-h1as-khong-kem-van-ap-suat-lop\n\n- Tên: Camera IP trong nhà/ngoài trời 360 độ 2MP Tp-Link Tapo C206\n  Giá: 1050000.0 VND\n  Đường dẫn: /camera-tp-link-tapo-c206-2mp\n\n",
+      "routed_agent": "advisor",
+      "error": null
+    },
+    {
+      "question_id": "Q05",
+      "category": "action_camera",
+      "question": "So sánh Insta360 X4 và GoPro",
+      "session_id": "benchmark_Q05_1784014525",
+      "stage_latencies_s": {
+        "retrieval": 0.2985,
+        "advisor_total": 3.9935,
+        "llm_generation_est": 3.695,
+        "e2e_via_host": 5.4182,
+        "intent_classification_est": 1.4247
+      },
+      "e2e_latency_s": 5.4182,
+      "search_results_count": 3,
+      "advisor_answer": "Xin chào quý khách! Hiện tại, chúng tôi không có thông tin cụ thể về sản phẩm Insta360 X4. Tuy nhiên, nếu quý khách đang quan tâm đến camera hành trình, chúng tôi có sản phẩm GoPro Hero 13 Black với giá 11.490.000 VND. \n\nGoPro Hero 13 Black nổi bật với khả năng quay video chất lượng cao, tính năng chống rung tốt và khả năng chống nước, rất phù hợp cho các hoạt động thể thao mạo hiểm hoặc ghi lại những khoảnh khắc đáng nhớ trong cuộc sống.\n\nNếu quý khách cần thêm thông tin về GoPro hoặc có nhu cầu cụ thể nào khác, xin vui lòng cho tôi biết!",
+      "referenced_products": "- Tên: Chuột Gaming không dây Razer Basilisk Ultimate (RZ01-03170100-R3A1)\n  Giá: 2890000.0 VND\n  Đường dẫn: /chuot-choi-game-khong-day-razer-basilisk\n\n- Tên: Camera hành trình GoPro Hero 13 Black\n  Giá: 11490000.0 VND\n  Đường dẫn: /camera-hanh-trinh-gopro-hero-13-black\n\n- Tên: Phụ kiện mở rộng Light Mode cho Gopro Hero 8\n  Giá: 1600000.0 VND\n  Đường dẫn: /ph-kien-mo-rong-light-mode-cho-gopro-hero-8\n\n",
+      "routed_agent": "advisor",
+      "error": null
+    },
+    {
+      "question_id": "Q06",
+      "category": "outdoor_camera",
+      "question": "Camera an ninh ngoài trời dùng năng lượng mặt trời",
+      "session_id": "benchmark_Q06_1784014535",
+      "stage_latencies_s": {
+        "retrieval": 0.3178,
+        "advisor_total": 5.927,
+        "llm_generation_est": 5.6092,
+        "e2e_via_host": 1.504,
+        "intent_classification_est": 0
+      },
+      "e2e_latency_s": 1.504,
+      "search_results_count": 3,
+      "advisor_answer": "Chào bạn! Hiện tại, chúng tôi có hai mẫu camera an ninh ngoài trời sử dụng năng lượng mặt trời mà bạn có thể tham khảo:\n\n1. **Camera năng lượng mặt trời ngoài trời 360 độ 4MP EZVIZ HB8 Lite Kit**\n   - Giá: 2.790.000 VND\n   - Đường dẫn: [Xem chi tiết](https://pinkcapy.com/camera-ezviz-nang-luong-mat-troi-hb8-lite-kit-4mp)\n\n2. **Camera năng lượng mặt trời ngoài trời 3MP Eufy S220**\n   - Giá: 2.490.000 VND\n   - Đường dẫn: [Xem chi tiết](https://pinkcapy.com/camera-ngoai-troi-nang-luong-mat-troi-eufy-2k-s220)\n\nCả hai sản phẩm đều có tính năng sử dụng năng lượng mặt trời, giúp bạn tiết kiệm điện năng và thuận tiện trong việc lắp đặt. Nếu bạn cần thêm thông tin hoặc có câu hỏi nào khác, hãy cho tôi biết nhé!",
+      "referenced_products": "- Tên: Camera năng lượng mặt trời ngoài trời 360 độ 4MP EZVIZ HB8 Lite Kit\n  Giá: 2790000.0 VND\n  Đường dẫn: /camera-ezviz-nang-luong-mat-troi-hb8-lite-kit-4mp\n\n- Tên: Camera năng lượng mặt trời ngoài trời 3MP Eufy S220\n  Giá: 2490000.0 VND\n  Đường dẫn: /camera-ngoai-troi-nang-luong-mat-troi-eufy-2k-s220\n\n- Tên: Camera IP ngoài trời 3MP Ezviz H3 2K Full Color\n  Giá: 1990000.0 VND\n  Đường dẫn: /camera-ip-wifi-ezviz-h3-2k\n\n",
+      "routed_agent": "search",
+      "error": null
+    },
+    {
+      "question_id": "Q07",
+      "category": "gimbal",
+      "question": "DJI Ronin RS4 mini dùng cho máy ảnh chịu tải bao nhiêu?",
+      "session_id": "benchmark_Q07_1784014542",
+      "stage_latencies_s": {
+        "retrieval": 0.3732,
+        "advisor_total": 2.3708,
+        "llm_generation_est": 1.9976,
+        "e2e_via_host": 3.5815,
+        "intent_classification_est": 1.2107
+      },
+      "e2e_latency_s": 3.5815,
+      "search_results_count": 3,
+      "advisor_answer": "Xin lỗi, nhưng tôi không có thông tin cụ thể về khả năng chịu tải của tay cầm chống rung máy ảnh DJI Ronin RS4 mini. Tuy nhiên, bạn có thể tham khảo thông số kỹ thuật trên trang chính thức của sản phẩm hoặc tìm hiểu thêm từ các nguồn uy tín. Nếu bạn cần tư vấn về các sản phẩm khác của DJI hoặc có nhu cầu cụ thể nào, tôi rất sẵn lòng hỗ trợ!",
+      "referenced_products": "- Tên: Tay cầm chống rung máy ảnh DJI Ronin RS4 mini combo\n  Giá: 8626000.0 VND\n  Đường dẫn: /tay-cam-chong-rung-may-anh-dji-ronin-rs4-mini-combo\n\n- Tên: Tay cầm chống rung máy ảnh DJI Ronin RS4 mini\n  Giá: 6900000.0 VND\n  Đường dẫn: /tay-cam-chong-rung-may-anh-dji-ronin-rs4-mini\n\n- Tên: Tay cầm chống rung máy ảnh DJI Ronin-RS4 \n  Giá: 10990000.0 VND\n  Đường dẫn: /tay-cam-chong-rung-may-anh-dji-ronin-rs4\n\n",
+      "routed_agent": "advisor",
+      "error": null
+    },
+    {
+      "question_id": "Q08",
+      "category": "tripod",
+      "question": "Gậy chụp ảnh Tripod Wiwu loại nào giá rẻ?",
+      "session_id": "benchmark_Q08_1784014549",
+      "stage_latencies_s": {
+        "retrieval": 0.2903,
+        "advisor_total": 2.3392,
+        "llm_generation_est": 2.0489,
+        "e2e_via_host": 1.2046,
+        "intent_classification_est": 0
+      },
+      "e2e_latency_s": 1.2046,
+      "search_results_count": 3,
+      "advisor_answer": "Gậy chụp ảnh Tripod giá rẻ nhất mà chúng tôi đang cung cấp là gậy Tripod WIWU DETACHABLE SE001 với giá 250.000 VND. Bạn có thể tham khảo thêm thông tin chi tiết [tại đây]( /gay-chup-anh-tripod-wiwu-detachable-se001). Nếu bạn cần thêm thông tin hoặc có câu hỏi nào khác, hãy cho tôi biết!",
+      "referenced_products": "- Tên: Gậy chụp ảnh Tripod WIWU DETACHABLE SE001\n  Giá: 250000.0 VND\n  Đường dẫn: /gay-chup-anh-tripod-wiwu-detachable-se001\n\n- Tên: Gậy chụp ảnh Tripod Wiwu Warrior SE013\n  Giá: 1150000.0 VND\n  Đường dẫn: /gay-chup-anh-tripod-wiwu-warrior-se013\n\n- Tên: Gậy chụp ảnh Tripod WIWU SHARP FILMSELFIE SE003\n  Giá: 420000.0 VND\n  Đường dẫn: /gay-chup-anh-tripod-wiwu-sharp-filmselfie-se003\n\n",
+      "routed_agent": "search",
+      "error": null
+    },
+    {
+      "question_id": "Q09",
+      "category": "car_accessory",
+      "question": "Android Box xe hơi VIETMAP cấu hình như thế nào?",
+      "session_id": "benchmark_Q09_1784014553",
+      "stage_latencies_s": {
+        "retrieval": 0.041,
+        "advisor_total": 2.8643,
+        "llm_generation_est": 2.8233,
+        "e2e_via_host": 0.987,
+        "intent_classification_est": 0
+      },
+      "e2e_latency_s": 0.987,
+      "search_results_count": 3,
+      "advisor_answer": "Android Box xe hơi VIETMAP BS10 (6-128) có cấu hình mạnh mẽ với bộ nhớ RAM 6GB và bộ nhớ trong 128GB, giúp bạn dễ dàng chạy các ứng dụng và lưu trữ dữ liệu. Sản phẩm này được thiết kế để nâng cao trải nghiệm giải trí trên xe hơi, cho phép bạn truy cập internet, xem video, nghe nhạc và sử dụng các ứng dụng khác một cách mượt mà.\n\nNếu bạn cần thêm thông tin chi tiết hoặc muốn biết về sản phẩm khác, xin vui lòng cho tôi biết!",
+      "referenced_products": "- Tên: Android Box xe hơi VIETMAP BS10 (6-128)\n  Giá: 10990000.0 VND\n  Đường dẫn: /android-box-cho-xe-hoi-vietmap-bs10-6-128\n\n- Tên: Android Box xe hơi VIETMAP BS10 Lite (4-64)\n  Giá: 4690000.0 VND\n  Đường dẫn: /android-box-xe-hoi-vietmap-bs10-lite\n\n- Tên: Bộ HUD kính lái VIETMAP H1AS (không kèm van áp suất lốp)\n  Giá: 2490000.0 VND\n  Đường dẫn: /bo-hud-kinh-lai-vietmap-h1as-khong-kem-van-ap-suat-lop\n\n",
+      "routed_agent": "search",
+      "error": null
+    },
+    {
+      "question_id": "Q10",
+      "category": "general",
+      "question": "Gợi ý một số camera hành động chống nước để đi bơi",
+      "session_id": "benchmark_Q10_1784014556",
+      "stage_latencies_s": {
+        "retrieval": 0.0456,
+        "advisor_total": 5.0634,
+        "llm_generation_est": 5.0178,
+        "e2e_via_host": 7.9069,
+        "intent_classification_est": 2.8435
+      },
+      "e2e_latency_s": 7.9069,
+      "search_results_count": 3,
+      "advisor_answer": "Chào bạn! Đối với nhu cầu sử dụng camera hành động chống nước để đi bơi, tôi xin gợi ý một số sản phẩm phù hợp:\n\n1. **Camera hành động Akaso 4K EK7000 Pro**: Đây là một lựa chọn tốt với khả năng quay video 4K và thiết kế chống nước, rất thích hợp cho các hoạt động dưới nước. Giá của sản phẩm này là 3.290.000 VND. Bạn có thể tham khảo thêm tại [đây](https://pinkcapytechstore.com/camera-hanh-dong-akaso-ek7000-pro).\n\n2. **Camera hành động Akaso 4K Brave 7**: Sản phẩm này cũng hỗ trợ quay video 4K và có khả năng chống nước, mang lại chất lượng hình ảnh tốt trong các điều kiện ánh sáng khác nhau. Giá của sản phẩm này là 5.990.000 VND. Tham khảo thêm tại [đây](https://pinkcapytechstore.com/camera-hanh-dong-akaso-brave-7).\n\nNếu bạn cần thêm thông tin chi tiết về sản phẩm nào, hãy cho tôi biết nhé!",
+      "referenced_products": "- Tên: Camera hành động Akaso 4K EK7000 Pro\n  Giá: 3290000.0 VND\n  Đường dẫn: /camera-hanh-dong-akaso-ek7000-pro\n\n- Tên: Camera hành động Akaso 4K Brave 7\n  Giá: 5990000.0 VND\n  Đường dẫn: /camera-hanh-dong-akaso-brave-7\n\n- Tên: Camera Insta360 One X3\n  Giá: 11560000.0 VND\n  Đường dẫn: /camera-hanh-trinh-insta360-one-x3\n\n",
+      "routed_agent": "advisor",
+      "error": null
+    }
+  ],
+  "statistics": {
+    "total_queries": 10,
+    "e2e_stats": {
+      "mean_s": 4.4549,
+      "median_s": 4.4999,
+      "min_s": 0.987,
+      "max_s": 9.1006,
+      "stdev_s": 3.0893,
+      "p90_s": 9.1006,
+      "p95_s": 9.1006
+    },
+    "per_stage_stats": {
+      "advisor_total": {
+        "mean_s": 4.7374,
+        "median_s": 4.5284,
+        "min_s": 2.3392,
+        "max_s": 7.9197,
+        "stdev_s": 2.0862,
+        "count": 10
+      },
+      "e2e_via_host": {
+        "mean_s": 4.4549,
+        "median_s": 4.4999,
+        "min_s": 0.987,
+        "max_s": 9.1006,
+        "stdev_s": 3.0893,
+        "count": 10
+      },
+      "intent_classification_est": {
+        "mean_s": 1.1646,
+        "median_s": 0.6054,
+        "min_s": 0,
+        "max_s": 3.2776,
+        "stdev_s": 1.3788,
+        "count": 10
+      },
+      "llm_generation_est": {
+        "mean_s": 4.4919,
+        "median_s": 4.3564,
+        "min_s": 1.9976,
+        "max_s": 7.8374,
+        "stdev_s": 2.1,
+        "count": 10
+      },
+      "retrieval": {
+        "mean_s": 0.2455,
+        "median_s": 0.3052,
+        "min_s": 0.041,
+        "max_s": 0.3816,
+        "stdev_s": 0.1343,
+        "count": 10
+      }
+    },
+    "slowest_stage": "advisor_total",
+    "slowest_stage_mean_s": 4.7374,
+    "docs_retrieved": {
+      "mean": 3,
+      "min": 3,
+      "max": 3
+    }
+  }
+}

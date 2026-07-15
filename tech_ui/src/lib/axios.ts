@@ -10,7 +10,7 @@ export const webClient = axios.create({
 
 // AI Host Agent Client (Orchestrator)
 export const aiClient = axios.create({
-  baseURL: "http://localhost:8000",
+  baseURL: "http://localhost:8000/api",
   headers: {
     "Content-Type": "application/json",
   },
